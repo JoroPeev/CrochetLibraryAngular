@@ -26,9 +26,33 @@
   text-decoration: none;
   color: #444;
   font-weight: 500;
-  transition: color 0.3s;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+.nav-links li a:hover {
+  color: white;
+  background-color: #ff6f91;
+  transition: all 0.3s ease;
+}
+.nav-links li a {
+  color: white;
+  background-color: #ff7e7e;
 }
 
-.nav-links li a:hover {
-  color: #ff6f91;
+.nav-links button {
+  background: none;
+  border: none;
+  color: #444;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+
+.nav-links button:hover {
+  color: white;
+  background-color: #ff6f91;
 }
