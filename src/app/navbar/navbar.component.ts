@@ -1,15 +1,11 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
+  standalone: true,
+  imports: [RouterModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css'],
-  standalone: true
+  styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent {
-  @Output() pageChange = new EventEmitter<string>();
-  
-  navigate(page: string) {
-    this.pageChange.emit(page);
-  }
-}
+export class NavbarComponent {}
