@@ -9,6 +9,4 @@ import { NavbarComponent } from './navbar/navbar.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  title = 'CrochetLibrary';
-}
+export class AppComponent {}
