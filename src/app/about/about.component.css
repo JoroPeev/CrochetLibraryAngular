@@ -1,0 +1,58 @@
+/* Основни стилове за контейнера "За нас" */
+.about-container {
+  background: #ffdfdf; /* Розов фон за съвпадение с главната страница */
+  padding: 30px;
+  margin: 20px auto;
+  max-width: 800px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif; /* Използваме шрифт от главната страница */
+  color: #333;
+}
+
+/* Заглавие за "За нас" */
+h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #ff7e7e; /* Розов цвят */
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* Контактна част */
+h3 {
+  font-size: 1.8rem;
+  margin-top: 30px;
+  color: #ff7e7e; /* Розов цвят */
+  border-bottom: 2px solid #ff7e7e;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 15px; /* Добавяме разстояние между контактите */
+}
+
+/* Връзки (контактна информация) */
+a {
+  color: #ff7e7e; /* Розово */
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #ff6565; /* По-тъмен розов за hover ефект */
+}
+
+a i {
+  margin-right: 10px; /* Малко разстояние между иконата и текста */
+}
+
+/* Подредба на контактите - да се подреждат едно под друго */
+.about-container p {
+  display: block;
+  margin-bottom: 15px;
+}
