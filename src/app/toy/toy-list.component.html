@@ -1,0 +1,11 @@
+<h2>Crochet Toys</h2>
+<div *ngIf="toys.length === 0">No toys found.</div>
+
+<div *ngFor="let toy of toys" class="toy-card">
+    <img [src]="toy.imageUrl" alt="{{ toy.name }}" width="200" />
+    <h3>{{ toy.name }}</h3>
+    <p>{{ toy.description }}</p>
+    <p><strong>Price:</strong> ${{ toy.price }}</p>
+    <p><strong>Colors:</strong> {{ toy.colors }}</p>
+    <p><strong>Stock:</strong> {{ toy.stock }}</p>
+</div>
