@@ -1,20 +1,24 @@
-// src/app/services/api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs'; // <-- Make sure you import Observable
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root' // Makes ApiService available throughout the app
+  providedIn: 'root'
 })
 export class ApiService {
 
-  // Your API base URL (change this to match your actual backend URL)
-  private apiUrl = 'https://localhost:7298/api/Toys'; // <-- Replace with your actual API endpoint
+  private toysApiUrl = 'https://localhost:7298/api/Toys';
+  private authApiUrl = 'https://localhost:7298/api/auth'; // <-- Auth API endpoint
 
   constructor(private http: HttpClient) {}
 
-  // This is the getToys method to fetch toy data from your backend
+  // Fetch toys
   getToys(): Observable<any> {
-    return this.http.get<any>(this.apiUrl);  // <-- This calls your API and gets the toys
+    return this.http.get<any>(this.toysApiUrl);
+  }
+
+  // Login method
+  login(data: any): Observable<any> {
+    return this.http.post<any>(`${this.authApiUrl}/login`, data);
   }
 }
