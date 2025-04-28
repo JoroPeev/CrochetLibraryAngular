@@ -1,20 +1,32 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  standalone: true,                     
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
+  imports: [FormsModule] 
 })
 export class LoginComponent {
-  username = '';
-  password = '';
+  email: string = '';
+  password: string = '';
+  message: string = '';
 
-  onLogin() {
-    console.log('Logging in with:', this.username, this.password);
-    // Here you would call your API to validate login
+  constructor(private apiService: ApiService) {}
+
+  login() {
+    this.apiService.login({ email: this.email, password: this.password })
+      .subscribe({
+        next: (res: any) => {
+          localStorage.setItem('token', res.token);
+          this.message = 'Login successful!';
+          console.log('Token:', res.token);
+        },
+        error: () => {
+          this.message = 'Login failed.';
+        }
+      });
   }
 }
