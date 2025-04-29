@@ -17,16 +17,16 @@ export class LoginComponent {
   constructor(private apiService: ApiService) {}
 
   login() {
-    this.apiService.login({ email: this.email, password: this.password })
-      .subscribe({
-        next: (res: any) => {
-          localStorage.setItem('token', res.token);
-          this.message = 'Login successful!';
-          console.log('Token:', res.token);
-        },
-        error: () => {
-          this.message = 'Login failed.';
-        }
-      });
-  }
+  this.apiService.login({ email: this.email, password: this.password }).subscribe({
+    next: (res: any) => {
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('email', this.email);
+      this.message = 'Login successful!';
+      console.log('Token:', res.token);
+    },
+    error: () => {
+      this.message = 'Login failed.';
+    }
+  });
+}
 }
