@@ -6,8 +6,11 @@
         <li><a routerLink="/gallery">Галерия</a></li>
         <li><a routerLink="/blog">Блог</a></li>
         <li><a routerLink="/shop">Магазин</a></li>
-    </ul>
-    <ul class="nav-links">
         <li><a routerLink="/about">Контакти</a></li>
+    </ul>
+
+    <ul class="nav-links">
+        <li *ngIf="!userEmail"><a routerLink="/login">Вписване</a></li>
+        <!--<li *ngIf="userEmail">👤 {{ userEmail }}</li>-->
     </ul>
 </nav>
