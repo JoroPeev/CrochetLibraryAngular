@@ -1,21 +1,22 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NavbarComponent } from './navbar.component';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
-describe('NavbarComponent', () => {
-  let component: NavbarComponent;
-  let fixture: ComponentFixture<NavbarComponent>;
+@Component({
+  selector: 'app-navbar',
+  standalone: true,
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.css']
+})
+export class NavbarComponent implements OnInit {
+  userEmail: string | null = null; 
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [NavbarComponent]
-    }).compileComponents();
+  constructor(private router: Router) {}
 
-    fixture = TestBed.createComponent(NavbarComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+  ngOnInit() {
+    this.userEmail = localStorage.getItem('email');
+  }
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+}
