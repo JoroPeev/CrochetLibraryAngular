@@ -18,11 +18,9 @@
   <section class="featured">
     <h2>✨ Препоръчани играчки</h2>
     <div class="products">
-      <!-- Repeat this card for each toy -->
       <div class="product-card" *ngFor="let toy of featuredToys">
         <img [src]="toy.imageUrl" [alt]="toy.name" style="margin: 0 auto; display: block;" />
         <h3>{{ toy.name }}</h3>
-        <p class="price">${{ toy.price | number:'1.2-2'}}</p>
         <button>Добави в кошницата</button>
       </div>
     </div>
