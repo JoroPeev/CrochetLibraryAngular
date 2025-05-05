@@ -1,0 +1,10 @@
+<div *ngIf="products.length === 0">
+    Зареждане на играчки...
+</div>
+
+<div *ngFor="let toy of products" class="product-card">
+    <h3>{{ toy.name }}</h3>
+    <img [src]="toy.imageUrl" alt="{{ toy.name }}" />
+    <p>{{ toy.description }}</p>
+    <p>Цена: {{ toy.price }} лв.</p>
+</div>
