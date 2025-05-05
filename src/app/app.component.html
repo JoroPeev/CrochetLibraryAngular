@@ -13,17 +13,9 @@
       src="https://cdn.leonardo.ai/users/ff8f3895-401f-4c98-8ac2-468b47e1f545/generations/3f7d5fb3-9602-4ded-bf96-d4bb9e35a212/segments/4:4:1/Flux_Dev_Create_a_bold_and_vibrant_acrylic_painting_logo_for_a_3.jpeg"
       alt="Сладки плетени играчки" />
   </section>
-
   <!-- Featured Products -->
   <section class="featured">
     <h2>✨ Препоръчани играчки</h2>
-    <div class="products">
-      <div class="product-card" *ngFor="let toy of featuredToys">
-        <img [src]="toy.imageUrl" [alt]="toy.name" style="margin: 0 auto; display: block;" />
-        <h3>{{ toy.name }}</h3>
-        <button>Добави в кошницата</button>
-      </div>
-    </div>
   </section>
 
   <section class="about">
