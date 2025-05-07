@@ -7,11 +7,11 @@ import { Toys } from '../models/toys';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'https://localhost:7298/api/Toys';  // Example
+  private apiUrl = 'https://localhost:7298/api/Toys';
 
   constructor(private http: HttpClient) {}
 
   getToys(): Observable<Toys[]> {
-  return this.http.get<Toys[]>(this.apiUrl);
-}
+    return this.http.get<Toys[]>(this.apiUrl);
+  }
 }
