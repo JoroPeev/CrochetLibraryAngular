@@ -1,8 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api.service';
+import { Toys } from '../../models/toys';
+import { ProductCardComponent } from '../product-card/product-card.component';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-product-list',
+  standalone: true,
+  imports: [CommonModule, ProductCardComponent],
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.css']
 })
-export class ProductListComponent{}
+export class ProductListComponent implements OnInit {
+  products: Toys[] = [];
+
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit(): void {
+    this.apiService.getToys().subscribe({
+      next: (data) => {
+        console.log('Fetched toys:', data);
+        this.products = data;
+      },
+      error: (err) => {
+        console.error('Error fetching toys:', err);
+      }
+    });
+  }
+}
+
