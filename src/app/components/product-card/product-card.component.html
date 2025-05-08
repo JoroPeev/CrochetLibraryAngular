@@ -1,10 +1,31 @@
-<div *ngIf="products.length === 0">
-    Зареждане на играчки...
-</div>
+<div class="product-card">
+    <img [src]="product.imageUrl" alt="{{product.name}}" />
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description }}</p>
+    <p><strong>Price:</strong> ${{ product.price }}</p>
 
-<div *ngFor="let toy of products" class="product-card">
-    <h3>{{ toy.name }}</h3>
-    <img [src]="toy.imageUrl" alt="{{ toy.name }}" />
-    <p>{{ toy.description }}</p>
-    <p>Цена: {{ toy.price }} лв.</p>
+    <button (click)="openRequestModal()">Request to Maker</button>
+
+    <!-- Popup Modal -->
+    <div class="modal-backdrop" *ngIf="showRequestModal">
+        <div class="modal">
+            <h3>Request for {{ product.name }}</h3>
+            <label>Name:</label>
+            <input [(ngModel)]="requestData.name" type="text" />
+
+            <label>Email:</label>
+            <input [(ngModel)]="requestData.email" type="email" />
+
+            <label>Message:</label>
+            <textarea [(ngModel)]="requestData.message"></textarea>
+
+            <label>Due Date:</label>
+            <input [(ngModel)]="requestData.dueDate" type="date" />
+
+            <div class="modal-buttons">
+                <button (click)="submitRequest()">Send</button>
+                <button (click)="closeRequestModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
 </div>
