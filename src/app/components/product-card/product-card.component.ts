@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Toys } from '../../models/toys';
+import { ApiService } from '../../services/api.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-product-card',
@@ -12,6 +13,7 @@ import { Toys } from '../../models/toys';
 })
 export class ProductCardComponent {
   @Input() product!: Toys;
+
   showRequestModal = false;
 
   requestData = {
@@ -21,18 +23,41 @@ export class ProductCardComponent {
     dueDate: ''
   };
 
+  constructor(private apiService: ApiService) {}
+
   openRequestModal() {
     this.showRequestModal = true;
   }
 
   closeRequestModal() {
     this.showRequestModal = false;
+    this.resetForm();
   }
 
   submitRequest() {
-    console.log('Request submitted:', this.requestData);
-    alert(`Request sent for ${this.product.name}. Due: ${this.requestData.dueDate}`);
-    this.requestData = { name: '', email: '', message: '', dueDate: '' };
-    this.closeRequestModal();
+    const request = {
+      toyId: this.product.id,
+      ...this.requestData
+    };
+
+    this.apiService.addRequest(request).subscribe({
+      next: () => {
+        alert('Request sent successfully!');
+        this.closeRequestModal();
+      },
+      error: (err) => {
+        console.error('Error sending request:', err);
+        alert('There was a problem sending your request.');
+      }
+    });
+  }
+
+  resetForm() {
+    this.requestData = {
+      name: '',
+      email: '',
+      message: '',
+      dueDate: ''
+    };
   }
 }
