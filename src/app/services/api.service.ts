@@ -19,5 +19,11 @@ export class ApiService {
   // 🚀 Add this method here
   addRequest(requestData: any): Observable<any> {
     return this.http.post(this.requestsApiUrl, requestData);
+    
   }
+  login(credentials: any): Observable<any> {
+    return this.http.post('https://localhost:7298/api/auth/login', credentials);
+  }
+  
+
 }
