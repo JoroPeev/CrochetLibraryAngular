@@ -1,22 +1,24 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NavbarComponent } from './navbar.component';
+import { LoginComponent } from '../../pages/login/login.component';
+import { RouterTestingModule } from '@angular/router/testing';
+import { CommonModule } from '@angular/common';
 
-@Component({
-  selector: 'app-navbar',
-  standalone: true,
-  templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
-})
-export class NavbarComponent implements OnInit {
-  userEmail: string | null = null; 
+describe('NavbarComponent', () => {
+  let component: NavbarComponent;
+  let fixture: ComponentFixture<NavbarComponent>;
 
-  constructor(private router: Router) {}
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [NavbarComponent, LoginComponent, CommonModule, RouterTestingModule],
+    }).compileComponents();
 
-  ngOnInit() {
-    this.userEmail = localStorage.getItem('email');
-  }
+    fixture = TestBed.createComponent(NavbarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-  goToLogin() {
-    this.router.navigate(['/login']);
-  }
-}
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
