@@ -4,9 +4,13 @@
         <li><a routerLink="/">Начало</a></li>
         <li><a routerLink="/about">Контакти</a></li>
         <li><a routerLink="/shop">Магазин</a></li>
-        <!-- Future routes -->
-        <!-- <li><a routerLink="/patterns">Модели</a></li> -->
-        <!-- <li><a routerLink="/gallery">Галерия</a></li> -->
-        <!-- <li><a routerLink="/shop">Магазин</a></li> -->
+        <li><button class="link-button" (click)="openLoginModal()">Login</button></li>
     </ul>
 </nav>
+
+<!-- Login Modal -->
+<div class="modal-backdrop" *ngIf="showLoginModal">
+    <div class="modal">
+        <app-login (close)="closeLoginModal()"></app-login>
+    </div>
+</div>
