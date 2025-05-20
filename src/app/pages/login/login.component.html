@@ -1,6 +1,11 @@
-<div class="login-container">
+<div class="modal-content">
     <h2>Login</h2>
-    <input [(ngModel)]="email" placeholder="Email" type="email" />
-    <input [(ngModel)]="password" placeholder="Password" type="password" />
+    <label>Email:</label>
+    <input type="email" [(ngModel)]="email">
+
+    <label>Password:</label>
+    <input type="password" [(ngModel)]="password">
+
+    <button (click)="close.emit()">Cancel</button>
     <button (click)="login()">Login</button>
 </div>
