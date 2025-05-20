@@ -7,8 +7,6 @@
         <li><button class="link-button" (click)="openLoginModal()">Login</button></li>
     </ul>
 </nav>
-
-<!-- Login Modal -->
 <div class="modal-backdrop" *ngIf="showLoginModal">
     <div class="modal">
         <app-login (close)="closeLoginModal()"></app-login>
