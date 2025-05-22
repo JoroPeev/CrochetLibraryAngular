@@ -1,0 +1,19 @@
+<h2>Product Management</h2>
+
+<div *ngFor="let toy of toys" class="product-item">
+    <div *ngIf="editingProduct?.id !== toy.id">
+        <h3>{{ toy.name }}</h3>
+        <img [src]="toy.imageUrl" alt="{{ toy.name }}" width="120" />
+        <p>Price: {{ toy.price }} лв.</p>
+        <button (click)="editProduct(toy)">Edit</button>
+        <button (click)="deleteProduct(toy.id)">Delete</button>
+    </div>
+    <div *ngIf="editingProduct">
+        <input [(ngModel)]="editingProduct.name" placeholder="Name" />
+        <input [(ngModel)]="editingProduct.price" type="number" placeholder="Price" />
+        <input [(ngModel)]="editingProduct.imageUrl" placeholder="Image URL" />
+        <textarea [(ngModel)]="editingProduct.description" placeholder="Description"></textarea>
+        <button (click)="saveProduct()">Save</button>
+        <button (click)="cancelEdit()">Cancel</button>
+    </div>
+</div>
