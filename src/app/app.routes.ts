@@ -29,7 +29,8 @@ export const routes: Routes = [
       },
       {
         path: 'admin/products',
-        loadComponent: () => import('./admin/pages/products.component').then(m => m.ProductsComponent)
+        loadComponent: () => import('./admin/pages/product-card/admin-product-list.component')
+          .then(m => m.AdminProductListComponent)
       },
       {
         path: 'products/:id',
