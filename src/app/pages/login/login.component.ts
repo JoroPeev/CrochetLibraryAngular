@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ export class LoginComponent {
   email = '';
   password = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   login() {
     const loginData = { email: this.email, password: this.password };
@@ -24,7 +25,8 @@ export class LoginComponent {
       next: (response) => {
         localStorage.setItem('token', response.token);
         alert('Login successful!');
-        this.close.emit();
+        this.close.emit();                
+        this.router.navigate(['/admin']);
       },
       error: () => alert('Invalid login.')
     });
