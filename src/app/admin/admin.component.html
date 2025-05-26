@@ -1,36 +1,9 @@
-<h2>Admin Panel</h2>
+<h1>Admin Panel</h1>
 
-<!-- Add New Product -->
-<div class="form-section">
-    <h3>Add New Product</h3>
-    <input type="text" [(ngModel)]="newProduct.name" placeholder="Product Name" />
-    <input type="number" [(ngModel)]="newProduct.price" placeholder="Price" />
-    <input type="text" [(ngModel)]="newProduct.imageUrl" placeholder="Image URL" />
-    <button (click)="addProduct()">Add Product</button>
+<div *ngIf="isLoggedIn; else notLoggedIn">
+    <app-admin-product-list></app-admin-product-list>
 </div>
 
-<hr />
-
-<!-- Product List -->
-<h3>Product List</h3>
-<div *ngFor="let product of products" class="product-card">
-    <img [src]="product.imageUrl" alt="product" />
-    <div>
-        <strong>{{ product.name }}</strong>
-        <p>{{ product.price }} лв.</p>
-        <button (click)="editProduct(product)">Edit</button>
-        <button (click)="deleteProduct(product.id)">Delete</button>
-    </div>
-</div>
-
-<!-- Edit Product Modal -->
-<div class="modal" *ngIf="editMode">
-    <div class="modal-content">
-        <h3>Edit Product</h3>
-        <input type="text" [(ngModel)]="selectedProduct!.name" />
-        <input type="number" [(ngModel)]="selectedProduct!.price" />
-        <input type="text" [(ngModel)]="selectedProduct!.imageUrl" />
-        <button (click)="saveProduct()">Save</button>
-        <button (click)="cancelEdit()">Cancel</button>
-    </div>
-</div>
+<ng-template #notLoggedIn>
+    <p>You must be logged in to access this page.</p>
+</ng-template>
