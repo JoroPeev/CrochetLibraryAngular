@@ -21,10 +21,9 @@ export class ApiService {
   login(credentials: any): Observable<any> {
     return this.http.post('https://localhost:7298/api/auth/login', credentials);
   }
-  addToy(toy: Toys): Observable<any> {
-    return this.http.post(this.apiUrl, toy);
+  createToy(toy: Toys): Observable<any> {
+    return this.http.post(`${this.apiUrl}`, toy);
   }
-
   updateToy(id: number, toy: Toys): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, toy);
   }
