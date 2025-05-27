@@ -1,31 +1,43 @@
 <div class="product-card">
-    <img [src]="product.imageUrl" alt="{{product.name}}" />
+    <img [src]="product.imageUrl" [alt]="product.name" />
     <h2>{{ product.name }}</h2>
     <p>{{ product.description }}</p>
-    <p><strong>Price:</strong> ${{ product.price }}</p>
+    <p><strong>Price:</strong> {{ product.price | number:'1.2-2' }} лв.</p>
 
     <button (click)="openRequestModal()">Request to Maker</button>
 
-    <!-- Popup Modal -->
-    <div class="modal-backdrop" *ngIf="showRequestModal">
-        <div class="modal">
+    <!-- Request Modal -->
+    <div class="modal-backdrop" *ngIf="showRequestModal" (click)="closeRequestModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
             <h3>Request for {{ product.name }}</h3>
-            <label>Name:</label>
-            <input [(ngModel)]="requestData.name" type="text" />
 
-            <label>Email:</label>
-            <input [(ngModel)]="requestData.email" type="email" />
+            <form (ngSubmit)="submitRequest()" #requestForm="ngForm">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input id="name" [(ngModel)]="requestData.name" name="name" type="text" required />
+                </div>
 
-            <label>Message:</label>
-            <textarea [(ngModel)]="requestData.message"></textarea>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input id="email" [(ngModel)]="requestData.email" name="email" type="email" required />
+                </div>
 
-            <label>Due Date:</label>
-            <input [(ngModel)]="requestData.dueDate" type="date" />
+                <div class="form-group">
+                    <label for="message">Message:</label>
+                    <textarea id="message" [(ngModel)]="requestData.message" name="message" rows="4"
+                        required></textarea>
+                </div>
 
-            <div class="modal-buttons">
-                <button (click)="closeRequestModal()">Cancel</button>
-                <button (click)="submitRequest()">Send</button>
-            </div>
+                <div class="form-group">
+                    <label for="dueDate">Due Date:</label>
+                    <input id="due-date" [(ngModel)]="requestData.dueDate" name="dueDate" type="date" required />
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" (click)="closeRequestModal()">Cancel</button>
+                    <button type="submit" [disabled]="!requestForm.form.valid">Send Request</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
