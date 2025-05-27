@@ -1,18 +1,44 @@
-<h2>Product Management</h2>
+<!-- Add Toy Button -->
+<div class="add-product-section">
+    <button (click)="showAddToyForm()" *ngIf="!showAddForm">Add New Toy</button>
+</div>
 
+<!-- Add Toy Form -->
+<div class="add-product-form" *ngIf="showAddForm">
+    <h3>Add New Toy</h3>
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.name" placeholder="Name" type="text" />
+    </div>
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.price" placeholder="Price" type="number" step="0.01" min="0" />
+    </div>
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.imageUrl" placeholder="Image URL" type="text" />
+    </div>
+    <div class="form-group">
+        <textarea [(ngModel)]="newProduct.description" placeholder="Description"></textarea>
+    </div>
+    <div class="form-buttons">
+        <button (click)="addToy()">Add Toy</button>
+        <button (click)="hideAddToyForm()">Cancel</button>
+    </div>
+</div>
+
+<!-- Product List -->
 <div *ngFor="let toy of toys" class="product-item">
-    <div *ngIf="editingProduct?.id !== toy.id">
+    <div *ngIf="!editingProduct || editingProduct.id !== toy.id">
         <h3>{{ toy.name }}</h3>
-        <img [src]="toy.imageUrl" alt="{{ toy.name }}" width="120" />
-        <p>Price: {{ toy.price }} лв.</p>
+        <img [src]="toy.imageUrl" [alt]="toy.name" width="120" />
+        <p>Price: {{ toy.price | number:'1.2-2' }} лв.</p>
         <button (click)="editProduct(toy)">Edit</button>
         <button (click)="deleteProduct(toy.id)">Delete</button>
     </div>
-    <div *ngIf="editingProduct">
-        <input [(ngModel)]="editingProduct.name" placeholder="Name" />
-        <input [(ngModel)]="editingProduct.price" type="number" placeholder="Price" />
-        <input [(ngModel)]="editingProduct.imageUrl" placeholder="Image URL" />
-        <textarea [(ngModel)]="editingProduct.description" placeholder="Description"></textarea>
+
+    <div *ngIf="editingProduct && editingProduct.id === toy.id">
+        <input [(ngModel)]="editingProduct!.name" placeholder="Name" />
+        <input [(ngModel)]="editingProduct!.price" type="number" step="0.01" min="0" placeholder="Price" />
+        <input [(ngModel)]="editingProduct!.imageUrl" placeholder="Image URL" />
+        <textarea [(ngModel)]="editingProduct!.description" placeholder="Description"></textarea>
         <button (click)="saveProduct()">Save</button>
         <button (click)="cancelEdit()">Cancel</button>
     </div>
