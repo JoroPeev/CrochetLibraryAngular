@@ -1,9 +1,12 @@
-<h1>Admin Panel</h1>
-
 <div *ngIf="isLoggedIn; else notLoggedIn">
-    <app-admin-product-list></app-admin-product-list>
+    <div class="admin-dashboard">
+        <app-admin-product-list></app-admin-product-list>
+    </div>
 </div>
-
 <ng-template #notLoggedIn>
-    <p>You must be logged in to access this page.</p>
+    <div class="access-denied">
+        <h2>Access Denied</h2>
+        <p>You must be logged in to access this page.</p>
+        <button (click)="goHome()" class="btn">Go to Home</button>
+    </div>
 </ng-template>
