@@ -4,11 +4,17 @@
         <li><a routerLink="/">Начало</a></li>
         <li><a routerLink="/about">Контакти</a></li>
         <li><a routerLink="/shop">Магазин</a></li>
-        <li><button class="link-button" (click)="openLoginModal()">Login</button></li>
+        <li *ngIf="!isLoggedIn" data-testid="login-section">
+            <button class="link-button" (click)="openLoginModal()">Вписване</button>
+        </li>
+        <li *ngIf="isLoggedIn">
+            <button class="link-button" data-testid="logout-button" (click)="logout()">Logout</button>
+        </li>
     </ul>
 </nav>
+
 <div class="modal-backdrop" *ngIf="showLoginModal">
     <div class="modal">
-        <app-login (close)="closeLoginModal()"></app-login>
+        <app-login (close)="closeLoginModal()" (loginSuccess)="onLoginSuccess()"></app-login>
     </div>
 </div>
