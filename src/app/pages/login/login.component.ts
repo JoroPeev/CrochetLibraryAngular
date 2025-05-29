@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   @Output() close = new EventEmitter<void>();
+  @Output() loginSuccess = new EventEmitter<void>();
 
   email = '';
   password = '';
@@ -23,9 +24,10 @@ export class LoginComponent {
     const loginData = { email: this.email, password: this.password };
     this.authService.login(loginData).subscribe({
       next: (response) => {
-        localStorage.setItem('token', response.token);
+        this.authService.setLoggedIn(response.token);
         alert('Login successful!');
-        this.close.emit();                
+        this.loginSuccess.emit();
+        this.close.emit();
         this.router.navigate(['/admin']);
       },
       error: () => alert('Invalid login.')
