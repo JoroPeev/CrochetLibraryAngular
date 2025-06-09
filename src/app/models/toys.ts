@@ -1,9 +1,10 @@
-export interface Toys {
-  id: number;
+export interface Toy {
+  id: string;
   name: string;
   description: string;
   price: number;
-  imageUrl: string;
   colors: string;
-  stock: number
+  stock: number;
+  primaryImageUrl: string;
+  imageUrls: string[];
 }
