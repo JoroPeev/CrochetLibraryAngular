@@ -1,56 +1,60 @@
 .product-card {
   border: 1px solid #ccc;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 16px;
   text-align: center;
+  background-color: #fff5f5;
+  box-shadow: 0 2px 8px rgba(255, 126, 126, 0.2);
 }
 
-.product-card img {
-  width: 100%;
-  max-width: 300px;
-  height: auto;
-}
-
-button {
-  margin-top: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
+.image-container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 999;
-}
-
-.modal {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-}
-
-.modal input,
-.modal textarea {
-  display: block;
-  width: 100%;
   margin-bottom: 12px;
-  padding: 8px;
 }
 
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
+.product-image {
+  width: 100%;
+  max-width: 300px;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: opacity 0.3s ease;
 }
+
+/* Image arrows */
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 126, 126, 0.8);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 20px;
+  border-radius: 50%;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.arrow:hover {
+  background: rgba(255, 101, 101, 0.9);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.arrow.left {
+  left: 10px;
+}
+
+.arrow.right {
+  right: 10px;
+}
+
+/* Buttons */
 button {
   background-color: #ff7e7e;
   color: white;
@@ -62,6 +66,7 @@ button {
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(255, 126, 126, 0.3);
+  margin-top: 8px;
 }
 
 button:hover {
@@ -69,19 +74,22 @@ button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 126, 126, 0.4);
 }
+
+/* Modal backdrop */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* dark overlay */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 999;
 }
 
+/* Modal window */
 .modal {
   background-color: #ffafaf;
   padding: 24px;
@@ -135,11 +143,13 @@ button:hover {
   cursor: pointer;
 }
 
+/* Modal cancel button */
 .modal-buttons button:first-child {
   background-color: #fff;
   color: #333;
 }
 
+/* Modal confirm button */
 .modal-buttons button:last-child {
   background-color: #333;
   color: #fff;

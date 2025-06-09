@@ -1,5 +1,12 @@
 <div class="product-card">
-    <img [src]="product.imageUrl" [alt]="product.name" />
+    <div class="image-container">
+        <button class="arrow left" (click)="prevImage()">&lt;</button>
+
+        <img [src]="currentImage" [alt]="product.name" class="product-image" />
+
+        <button class="arrow right" (click)="nextImage()">&gt;</button>
+    </div>
+
     <h2>{{ product.name }}</h2>
     <p>{{ product.description }}</p>
     <p><strong>Price:</strong> {{ product.price | number:'1.2-2' }} лв.</p>
