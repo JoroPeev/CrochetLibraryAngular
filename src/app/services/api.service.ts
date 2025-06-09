@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Toys } from '../models/toys';
+import { Toy } from '../models/toys';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,8 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
-  getToys(): Observable<Toys[]> {
-    return this.http.get<Toys[]>(this.apiUrl);
+  getToys(): Observable<Toy[]> {
+    return this.http.get<Toy[]>(this.apiUrl);
   }
   addRequest(requestData: any): Observable<any> {
     return this.http.post(this.requestsApiUrl, requestData);
@@ -21,10 +21,10 @@ export class ApiService {
   login(credentials: any): Observable<any> {
     return this.http.post('https://localhost:7298/api/auth/login', credentials);
   }
-  createToy(toy: Toys): Observable<any> {
+  createToy(toy: Toy): Observable<any> {
     return this.http.post(`${this.apiUrl}`, toy);
   }
-  updateToy(id: number, toy: Toys): Observable<any> {
+  updateToy(id: number, toy: Toy): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, toy);
   }
 
