@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { Toys } from '../../models/toys';
+import { Toy } from '../../models/toys';
 import { ProductCardComponent } from '../product-card/product-card.component';
 
 @Component({
@@ -12,7 +12,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
-  products: Toys[] = [];
+  products: Toy[] = [];
 
   constructor(private apiService: ApiService) {}
 
@@ -28,4 +28,3 @@ export class ProductListComponent implements OnInit {
     });
   }
 }
-
