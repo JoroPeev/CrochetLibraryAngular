@@ -119,7 +119,13 @@ export class AdminProductListComponent implements OnInit {
     const toyToSave = this.formModelToToy(this.editingProduct);
     if (!toyToSave) return;
 
-    this.apiService.updateToy(toyToSave.id, toyToSave).subscribe({
+    // Convert string ID to number for API service
+    const toyId = typeof toyToSave.id === 'string' ? Number(toyToSave.id) : toyToSave.id;
+    
+    // DEBUG: Check ID conversion
+    console.log('Original ID:', toyToSave.id, 'Converted ID:', toyId, 'Type:', typeof toyId);
+    
+    this.apiService.updateToy(toyId, toyToSave).subscribe({
       next: () => {
         alert('Product updated successfully!');
         this.loadProducts();
@@ -134,7 +140,13 @@ export class AdminProductListComponent implements OnInit {
 
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product?')) {
-      this.apiService.deleteToy(id).subscribe({
+      // Convert string ID to number for API service
+      const toyId = typeof id === 'string' ? Number(id) : id;
+      
+      // DEBUG: Check ID conversion
+      console.log('Original ID:', id, 'Converted ID:', toyId, 'Type:', typeof toyId);
+      
+      this.apiService.deleteToy(toyId).subscribe({
         next: () => {
           alert('Product deleted successfully!');
           this.loadProducts();
@@ -161,17 +173,26 @@ export class AdminProductListComponent implements OnInit {
   }
 
   removeNewImage(index: number) {
-    this.newProduct.imageUrls?.splice(index, 1);
+    if (this.newProduct.imageUrls) {
+      this.newProduct.imageUrls.splice(index, 1);
+    }
   }
 
   addEditImage() {
     if (!this.editingProduct?.imageUrls) {
-      this.editingProduct!.imageUrls = [];
+      if (this.editingProduct) {
+        this.editingProduct.imageUrls = [];
+      }
     }
-    this.editingProduct!.imageUrls.push('');
+    this.editingProduct?.imageUrls?.push('');
   }
 
   removeEditImage(index: number) {
     this.editingProduct?.imageUrls?.splice(index, 1);
+  }
+
+  // Helper method to track by index for ngFor
+  trackByIndex(index: number): number {
+    return index;
   }
 }
