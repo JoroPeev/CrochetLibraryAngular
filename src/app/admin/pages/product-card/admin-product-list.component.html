@@ -13,7 +13,25 @@
         <input [(ngModel)]="newProduct.price" placeholder="Price" type="number" step="0.01" min="0" />
     </div>
     <div class="form-group">
-        <input [(ngModel)]="newProduct.imageUrl" placeholder="Image URL" type="text" />
+        <input [(ngModel)]="newProduct.primaryImageUrl" placeholder="Primary Image URL" type="text" />
+    </div>
+
+    <!-- Multiple Images Section -->
+    <div class="form-group">
+        <label>Additional Images:</label>
+        <div *ngFor="let imageUrl of newProduct.imageUrls; let i = index; trackBy: trackByIndex"
+            class="image-input-row">
+            <input [(ngModel)]="newProduct.imageUrls![i]" placeholder="Image URL" type="text" />
+            <button type="button" (click)="removeNewImage(i)">Remove</button>
+        </div>
+        <button type="button" (click)="addNewImage()">Add Image</button>
+    </div>
+
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.colors" placeholder="Colors" type="text" />
+    </div>
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.stock" placeholder="Stock" type="number" min="0" />
     </div>
     <div class="form-group">
         <textarea [(ngModel)]="newProduct.description" placeholder="Description"></textarea>
@@ -29,8 +47,10 @@
     <div *ngFor="let toy of toys" class="product-item">
         <div *ngIf="!editingProduct || editingProduct.id !== toy.id">
             <h3>{{ toy.name }}</h3>
-            <img [src]="toy.imageUrl" [alt]="toy.name" width="120" />
+            <img [src]="toy.primaryImageUrl" [alt]="toy.name" width="120" />
             <p>Price: <strong>{{ toy.price | number:'1.2-2' }} лв.</strong></p>
+            <p *ngIf="toy.colors">Colors: {{ toy.colors }}</p>
+            <p>Stock: {{ toy.stock }}</p>
             <p *ngIf="toy.description">{{ toy.description }}</p>
             <div>
                 <button (click)="editProduct(toy)">Edit</button>
@@ -41,7 +61,21 @@
         <div *ngIf="editingProduct && editingProduct.id === toy.id">
             <input [(ngModel)]="editingProduct!.name" placeholder="Name" />
             <input [(ngModel)]="editingProduct!.price" type="number" step="0.01" min="0" placeholder="Price" />
-            <input [(ngModel)]="editingProduct!.imageUrl" placeholder="Image URL" />
+            <input [(ngModel)]="editingProduct!.primaryImageUrl" placeholder="Primary Image URL" />
+            <input [(ngModel)]="editingProduct!.colors" placeholder="Colors" />
+            <input [(ngModel)]="editingProduct!.stock" type="number" min="0" placeholder="Stock" />
+
+            <!-- Multiple Images Section for Editing -->
+            <div class="form-group">
+                <label>Additional Images:</label>
+                <div *ngFor="let imageUrl of editingProduct!.imageUrls; let i = index; trackBy: trackByIndex"
+                    class="image-input-row">
+                    <input [(ngModel)]="editingProduct!.imageUrls![i]" placeholder="Image URL" type="text" />
+                    <button type="button" (click)="removeEditImage(i)">Remove</button>
+                </div>
+                <button type="button" (click)="addEditImage()">Add Image</button>
+            </div>
+
             <textarea [(ngModel)]="editingProduct!.description" placeholder="Description"></textarea>
             <div>
                 <button (click)="saveProduct()">Save</button>
