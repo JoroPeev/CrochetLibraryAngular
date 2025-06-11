@@ -1,17 +1,18 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-import { ShopComponent } from './pages/shop/shop.component';
 import { AboutComponent } from './pages/about/about.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { ProductDetailComponent } from './pages/product-detail/product-detail.component'; // ✅ import it here
+import { HomeComponent } from './components/home/home.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },  // Root redirects to Home page
-  { path: 'home', component: HomeComponent },  // Display HomeComponent for root
-  { path: 'shop', component: ShopComponent },
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
   { path: 'about', component: AboutComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'product-detail', component: ProductDetailComponent }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
