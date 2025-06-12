@@ -1,16 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Product Detail</title>
-    <link rel="stylesheet" href="ProductDetail.css">
-</head>
-
-<body>
-
-    <div id="product-detail"></div>
-
-</body>
-
-</html>
+<div class="product-detail" *ngIf="product.name">
+    <h1>{{ product.name }}</h1>
+    <img [src]="product.image" [alt]="product.name" class="product-image" />
+    <p>{{ product.description }}</p>
+    <h3>Price: {{ product.price }} лв.</h3>
+</div>
