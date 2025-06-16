@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
-import { Toy } from '../../../models/toys';
+import { Toy, ToyImage } from '../../../models/toys';
 
 // Form model to use strings for price and stock for easy form binding
 type ToyFormModel = Omit<Toy, 'price' | 'stock'> & {
@@ -20,8 +20,19 @@ type ToyFormModel = Omit<Toy, 'price' | 'stock'> & {
 export class AdminProductListComponent implements OnInit {
   toys: Toy[] = [];
   editingProduct: ToyFormModel | null = null;
-  newProduct: Partial<ToyFormModel> = {};
+  // Initialize newProduct with default values instead of empty object
+  newProduct: Partial<ToyFormModel> = {
+    name: '',
+    price: '0',
+    description: '',
+    colors: '',
+    stock: '0',
+    primaryImageUrl: '',
+    images: []
+  };
   showAddForm: boolean = false;
+  toyImages: { [toyId: string]: ToyImage[] } = {}; // Store images for each toy
+  isLoadingImages: { [toyId: string]: boolean } = {}; // Track loading state per toy
 
   constructor(private apiService: ApiService) {}
 
@@ -33,12 +44,47 @@ export class AdminProductListComponent implements OnInit {
     this.apiService.getToys().subscribe({
       next: (data) => {
         this.toys = data;
+        // Load images for each toy
+        this.toys.forEach(toy => {
+          this.loadToyImages(toy.id);
+        });
       },
       error: (error) => {
         console.error('Failed to load products:', error);
         alert('Failed to load products.');
       }
     });
+  }
+
+  // Load images from database for a specific toy
+  loadToyImages(toyId: string): void {
+    if (!toyId) return;
+
+    this.isLoadingImages[toyId] = true;
+    this.apiService.getToyImages(toyId).subscribe({
+      next: (images) => {
+        this.toyImages[toyId] = images || [];
+      },
+      error: (error) => {
+        console.error(`Error loading images for toy ${toyId}:`, error);
+        this.toyImages[toyId] = [];
+      },
+      complete: () => {
+        this.isLoadingImages[toyId] = false;
+      }
+    });
+  }
+
+  // Get images for a specific toy
+  getToyImages(toyId: string): ToyImage[] {
+    return this.toyImages[toyId] || [];
+  }
+
+  // Get primary image for a toy
+  getPrimaryImage(toyId: string): string {
+    const images = this.getToyImages(toyId);
+    const primaryImage = images.find(img => img.isPrimary);
+    return primaryImage?.imageUrl || images[0]?.imageUrl || 'assets/placeholder-image.png';
   }
 
   showAddToyForm() {
@@ -59,8 +105,14 @@ export class AdminProductListComponent implements OnInit {
       colors: '',
       stock: '0',
       primaryImageUrl: '',
-      imageUrls: []
+      images: []
     };
+  }
+
+  // Handle image loading errors by setting placeholder image
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement;
+    target.src = 'assets/placeholder-image.png';
   }
 
   private formModelToToy(formModel: ToyFormModel): Toy | null {
@@ -80,7 +132,7 @@ export class AdminProductListComponent implements OnInit {
       colors: formModel.colors || '',
       stock: stockNum,
       primaryImageUrl: formModel.primaryImageUrl || '',
-      imageUrls: formModel.imageUrls || []
+      images: formModel.images || []
     };
   }
 
@@ -89,10 +141,14 @@ export class AdminProductListComponent implements OnInit {
     if (!toyToAdd) return;
 
     this.apiService.createToy(toyToAdd).subscribe({
-      next: () => {
+      next: (newToy) => {
         alert('Product added successfully!');
         this.loadProducts();
         this.hideAddToyForm();
+        // Load images for the new toy if it has an ID
+        if (newToy?.id) {
+          this.loadToyImages(newToy.id);
+        }
       },
       error: (error) => {
         console.error('Failed to add product:', error);
@@ -106,7 +162,7 @@ export class AdminProductListComponent implements OnInit {
       ...toy,
       price: toy.price.toString(),
       stock: toy.stock.toString(),
-      imageUrls: [...toy.imageUrls]
+      images: [...(this.getToyImages(toy.id) || [])]
     };
   }
 
@@ -119,16 +175,16 @@ export class AdminProductListComponent implements OnInit {
     const toyToSave = this.formModelToToy(this.editingProduct);
     if (!toyToSave) return;
 
-    // Convert string ID to number for API service
     const toyId = typeof toyToSave.id === 'string' ? Number(toyToSave.id) : toyToSave.id;
-    
-    // DEBUG: Check ID conversion
-    console.log('Original ID:', toyToSave.id, 'Converted ID:', toyId, 'Type:', typeof toyId);
-    
+
     this.apiService.updateToy(toyId, toyToSave).subscribe({
       next: () => {
         alert('Product updated successfully!');
         this.loadProducts();
+        // Reload images for the updated toy
+        if (this.editingProduct?.id) {
+          this.loadToyImages(this.editingProduct.id);
+        }
         this.editingProduct = null;
       },
       error: (error) => {
@@ -140,15 +196,14 @@ export class AdminProductListComponent implements OnInit {
 
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product?')) {
-      // Convert string ID to number for API service
       const toyId = typeof id === 'string' ? Number(id) : id;
-      
-      // DEBUG: Check ID conversion
-      console.log('Original ID:', id, 'Converted ID:', toyId, 'Type:', typeof toyId);
-      
+
       this.apiService.deleteToy(toyId).subscribe({
         next: () => {
           alert('Product deleted successfully!');
+          // Remove images from cache
+          delete this.toyImages[id];
+          delete this.isLoadingImages[id];
           this.loadProducts();
         },
         error: (error) => {
@@ -163,35 +218,49 @@ export class AdminProductListComponent implements OnInit {
     this.editingProduct = null;
   }
 
+  // Refresh images for a specific toy
+  refreshToyImages(toyId: string): void {
+    this.loadToyImages(toyId);
+  }
+
   // ====== MULTI IMAGE MANAGEMENT ======
 
   addNewImage() {
-    if (!this.newProduct.imageUrls) {
-      this.newProduct.imageUrls = [];
+    if (!this.newProduct.images) {
+      this.newProduct.images = [];
     }
-    this.newProduct.imageUrls.push('');
+    this.newProduct.images.push({
+      id: '',
+      imageUrl: '',
+      isPrimary: false,
+      displayOrder: this.newProduct.images.length
+    });
   }
 
   removeNewImage(index: number) {
-    if (this.newProduct.imageUrls) {
-      this.newProduct.imageUrls.splice(index, 1);
+    if (this.newProduct.images) {
+      this.newProduct.images.splice(index, 1);
     }
   }
 
   addEditImage() {
-    if (!this.editingProduct?.imageUrls) {
+    if (!this.editingProduct?.images) {
       if (this.editingProduct) {
-        this.editingProduct.imageUrls = [];
+        this.editingProduct.images = [];
       }
     }
-    this.editingProduct?.imageUrls?.push('');
+    this.editingProduct?.images?.push({
+      id: '',
+      imageUrl: '',
+      isPrimary: false,
+      displayOrder: this.editingProduct.images.length
+    });
   }
 
   removeEditImage(index: number) {
-    this.editingProduct?.imageUrls?.splice(index, 1);
+    this.editingProduct?.images?.splice(index, 1);
   }
 
-  // Helper method to track by index for ngFor
   trackByIndex(index: number): number {
     return index;
   }
