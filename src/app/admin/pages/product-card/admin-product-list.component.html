@@ -1,85 +1,117 @@
 <!-- Add Toy Button -->
-<div class="add-product-section">
-    <button (click)="showAddToyForm()" *ngIf="!showAddForm">Add New Toy</button>
+<div class="add-product-section" style="margin-bottom: 20px;">
+    <button (click)="showAddToyForm()" *ngIf="!showAddForm" class="btn btn-primary">
+        + Add New Toy
+    </button>
 </div>
 
 <!-- Add Toy Form -->
-<div class="add-product-form" *ngIf="showAddForm">
-    <h3>Add New Toy</h3>
-    <div class="form-group">
-        <input [(ngModel)]="newProduct.name" placeholder="Name" type="text" />
-    </div>
-    <div class="form-group">
-        <input [(ngModel)]="newProduct.price" placeholder="Price" type="number" step="0.01" min="0" />
-    </div>
-    <div class="form-group">
-        <input [(ngModel)]="newProduct.primaryImageUrl" placeholder="Primary Image URL" type="text" />
-    </div>
+<div class="add-product-form" *ngIf="showAddForm"
+    style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; max-width: 400px;">
+    <h3>Add a New Toy</h3>
 
-    <!-- Multiple Images Section -->
     <div class="form-group">
-        <label>Additional Images:</label>
-        <div *ngFor="let imageUrl of newProduct.imageUrls; let i = index; trackBy: trackByIndex"
-            class="image-input-row">
-            <input [(ngModel)]="newProduct.imageUrls![i]" placeholder="Image URL" type="text" />
-            <button type="button" (click)="removeNewImage(i)">Remove</button>
-        </div>
-        <button type="button" (click)="addNewImage()">Add Image</button>
+        <input [(ngModel)]="newProduct.name" placeholder="Toy Name" type="text" required />
     </div>
 
     <div class="form-group">
-        <input [(ngModel)]="newProduct.colors" placeholder="Colors" type="text" />
+        <input [(ngModel)]="newProduct.price" placeholder="Price (лв.)" type="number" step="0.01" min="0" required />
     </div>
+
     <div class="form-group">
-        <input [(ngModel)]="newProduct.stock" placeholder="Stock" type="number" min="0" />
+        <input [(ngModel)]="newProduct.colors" placeholder="Colors (comma separated)" type="text" />
     </div>
+
     <div class="form-group">
-        <textarea [(ngModel)]="newProduct.description" placeholder="Description"></textarea>
+        <input [(ngModel)]="newProduct.stock" placeholder="Stock Quantity" type="number" min="0" />
     </div>
-    <div class="form-buttons">
-        <button (click)="addToy()">Add Toy</button>
-        <button (click)="hideAddToyForm()">Cancel</button>
+
+    <div class="form-group">
+        <textarea [(ngModel)]="newProduct.description" placeholder="Description" rows="3"></textarea>
+    </div>
+
+    <div class="form-buttons" style="margin-top: 15px;">
+        <button (click)="addToy()" [disabled]="!newProduct.name || !newProduct.price" class="btn btn-success">
+            Add Toy
+        </button>
+        <button (click)="hideAddToyForm()" class="btn btn-outline-secondary" style="margin-left: 10px;">
+            Cancel
+        </button>
     </div>
 </div>
 
-<!-- Product List with Grid Container -->
-<div class="products-grid">
-    <div *ngFor="let toy of toys" class="product-item">
+<!-- Product List Grid -->
+<div class="products-grid"
+    style="display: grid; grid-template-columns: repeat(auto-fill,minmax(250px,1fr)); gap: 20px; margin-top: 30px;">
+    <div *ngFor="let toy of toys" class="product-item"
+        style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; background: #fafafa;">
+
+        <!-- Viewing Mode -->
         <div *ngIf="!editingProduct || editingProduct.id !== toy.id">
             <h3>{{ toy.name }}</h3>
-            <img [src]="toy.primaryImageUrl" [alt]="toy.name" width="120" />
-            <p>Price: <strong>{{ toy.price | number:'1.2-2' }} лв.</strong></p>
-            <p *ngIf="toy.colors">Colors: {{ toy.colors }}</p>
-            <p>Stock: {{ toy.stock }}</p>
-            <p *ngIf="toy.description">{{ toy.description }}</p>
-            <div>
-                <button (click)="editProduct(toy)">Edit</button>
-                <button (click)="deleteProduct(toy.id)">Delete</button>
+
+            <p><strong>Price:</strong> {{ toy.price | number:'1.2-2' }} лв.</p>
+            <p *ngIf="toy.colors"><strong>Colors:</strong> {{ toy.colors }}</p>
+            <p><strong>Stock:</strong> {{ toy.stock }}</p>
+            <p *ngIf="toy.description"><strong>Description:</strong> {{ toy.description }}</p>
+
+            <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button (click)="editProduct(toy)" class="btn btn-outline-primary btn-sm">Edit</button>
+                <button (click)="deleteProduct(toy.id)" class="btn btn-outline-danger btn-sm">Delete</button>
             </div>
         </div>
 
-        <div *ngIf="editingProduct && editingProduct.id === toy.id">
-            <input [(ngModel)]="editingProduct!.name" placeholder="Name" />
-            <input [(ngModel)]="editingProduct!.price" type="number" step="0.01" min="0" placeholder="Price" />
-            <input [(ngModel)]="editingProduct!.primaryImageUrl" placeholder="Primary Image URL" />
-            <input [(ngModel)]="editingProduct!.colors" placeholder="Colors" />
-            <input [(ngModel)]="editingProduct!.stock" type="number" min="0" placeholder="Stock" />
+        <!-- Editing Mode -->
+        <div *ngIf="editingProduct && editingProduct.id === toy.id" class="edit-form" style="margin-top: 10px;">
+            <h4>Edit Toy</h4>
 
-            <!-- Multiple Images Section for Editing -->
             <div class="form-group">
-                <label>Additional Images:</label>
-                <div *ngFor="let imageUrl of editingProduct!.imageUrls; let i = index; trackBy: trackByIndex"
-                    class="image-input-row">
-                    <input [(ngModel)]="editingProduct!.imageUrls![i]" placeholder="Image URL" type="text" />
-                    <button type="button" (click)="removeEditImage(i)">Remove</button>
+                <input [(ngModel)]="editingProduct!.name" placeholder="Toy Name" required />
+            </div>
+
+            <div class="form-group">
+                <input [(ngModel)]="editingProduct!.price" type="number" step="0.01" min="0" placeholder="Price (лв.)"
+                    required />
+            </div>
+
+            <div class="form-group">
+                <input [(ngModel)]="editingProduct!.colors" placeholder="Colors (comma separated)" />
+            </div>
+
+            <div class="form-group">
+                <input [(ngModel)]="editingProduct!.stock" type="number" min="0" placeholder="Stock Quantity" />
+            </div>
+
+            <!-- IMAGE EDITING SECTION -->
+            <div class="form-group">
+                <label>Edit Images:</label>
+                <div *ngFor="let image of editingProduct!.images || []; let i = index; trackBy: trackByIndex"
+                    class="image-input-row" style="margin-bottom: 8px;">
+                    <input [(ngModel)]="editingProduct!.images![i].imageUrl" placeholder="Image URL" type="text"
+                        style="width: 60%;" />
+                    <label style="margin-left: 10px;">
+                        <input type="checkbox" [(ngModel)]="editingProduct!.images![i].isPrimary" />
+                        Primary
+                    </label>
+                    <input [(ngModel)]="editingProduct!.images![i].displayOrder" type="number" placeholder="Order"
+                        min="0" style="width: 60px; margin-left: 10px;" />
+                    <button type="button" (click)="removeEditImage(i)" style="margin-left: 10px;">Remove</button>
                 </div>
                 <button type="button" (click)="addEditImage()">Add Image</button>
             </div>
 
-            <textarea [(ngModel)]="editingProduct!.description" placeholder="Description"></textarea>
-            <div>
-                <button (click)="saveProduct()">Save</button>
-                <button (click)="cancelEdit()">Cancel</button>
+            <div class="form-group">
+                <textarea [(ngModel)]="editingProduct!.description" placeholder="Description" rows="3"></textarea>
+            </div>
+
+            <div class="form-buttons" style="margin-top: 15px;">
+                <button (click)="saveProduct()" [disabled]="!editingProduct?.name || !editingProduct?.price"
+                    class="btn btn-success">
+                    Save Changes
+                </button>
+                <button (click)="cancelEdit()" class="btn btn-outline-secondary" style="margin-left: 10px;">
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
