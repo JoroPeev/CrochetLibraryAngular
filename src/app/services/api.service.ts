@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Toy } from '../models/toys';
+import { ToyImage } from '../models/toys';
 
 @Injectable({
   providedIn: 'root'
@@ -31,5 +32,7 @@ export class ApiService {
   deleteToy(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
-
+  getToyImages(id: string): Observable<ToyImage[]> {
+    return this.http.get<ToyImage[]>(`${this.apiUrl}/${id}/images`);
+  }
 }
