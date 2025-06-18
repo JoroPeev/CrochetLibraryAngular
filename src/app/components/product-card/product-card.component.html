@@ -1,50 +1,78 @@
-<div class="product-card">
+<div class="product-card" (click)="openProductDetail()">
+    <!-- Image Container -->
     <div class="image-container">
-        <button class="arrow left" (click)="prevImage()">&lt;</button>
+        <img [src]="currentImage" [alt]="product.name" (error)="onImageError($event)" class="product-image"
+            [class.loading]="isLoadingImages">
 
-        <img [src]="currentImage" [alt]="product.name" class="product-image" />
-
-        <button class="arrow right" (click)="nextImage()">&gt;</button>
+        <!-- Image Navigation -->
+        <div class="image-nav" *ngIf="hasImages && imageCount > 1">
+            <button class="nav-button prev" (click)="prevImage($event)" aria-label="Previous image">
+                &#8249;
+            </button>
+            <span class="image-counter">{{ normalizedImageIndex + 1 }}/{{ imageCount }}</span>
+            <button class="nav-button next" (click)="nextImage($event)" aria-label="Next image">
+                &#8250;
+            </button>
+        </div>
     </div>
 
-    <h2>{{ product.name }}</h2>
-    <p>{{ product.description }}</p>
-    <p><strong>Price:</strong> {{ product.price | number:'1.2-2' }} лв.</p>
+    <!-- Product Info -->
+    <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description" *ngIf="product.description">{{ product.description }}</p>
+        <div class="product-price" *ngIf="product.price">{{ product.price | currency }}</div>
 
-    <button (click)="openRequestModal()">Request to Maker</button>
-
-    <!-- Request Modal -->
-    <div class="modal-backdrop" *ngIf="showRequestModal" (click)="closeRequestModal()">
-        <div class="modal" (click)="$event.stopPropagation()">
-            <h3>Request for {{ product.name }}</h3>
-
-            <form (ngSubmit)="submitRequest()" #requestForm="ngForm">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input id="name" [(ngModel)]="requestData.name" name="name" type="text" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input id="email" [(ngModel)]="requestData.email" name="email" type="email" required />
-                </div>
-
-                <div class="form-group">
-                    <label for="message">Message:</label>
-                    <textarea id="message" [(ngModel)]="requestData.message" name="message" rows="4"
-                        required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="dueDate">Due Date:</label>
-                    <input id="due-date" [(ngModel)]="requestData.dueDate" name="dueDate" type="date" required />
-                </div>
-
-                <div class="modal-buttons">
-                    <button type="button" (click)="closeRequestModal()">Cancel</button>
-                    <button type="submit" [disabled]="!requestForm.form.valid">Send Request</button>
-                </div>
-            </form>
+        <!-- Action Buttons -->
+        <div class="product-actions" (click)="$event.stopPropagation()">
+            <button *ngIf="showRequestButton" class="request-button" (click)="openRequestModal()">
+                Request
+            </button>
         </div>
+    </div>
+</div>
+
+<!-- Request Modal -->
+<div class="modal-overlay" *ngIf="showRequestModal" (click)="closeRequestModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Request</h2>
+            <button class="close-button" (click)="closeRequestModal()" aria-label="Close">×</button>
+        </div>
+
+        <form class="request-form" (ngSubmit)="submitRequest()" #requestForm="ngForm">
+            <div class="form-group">
+                <label for="requestName">Name:</label>
+                <input type="text" id="requestName" name="name" [(ngModel)]="requestData.name" required
+                    placeholder="Enter your name" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="requestEmail">Email:</label>
+                <input type="email" id="requestEmail" name="email" [(ngModel)]="requestData.email" required
+                    placeholder="Enter your email" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="requestMessage">Message:</label>
+                <textarea id="requestMessage" name="message" [(ngModel)]="requestData.message"
+                    placeholder="Tell us about your request..." rows="4" class="form-input form-textarea"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="requestDueDate">Due Date:</label>
+                <input type="date" id="requestDueDate" name="dueDate" [(ngModel)]="requestData.dueDate"
+                    class="form-input">
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="cancel-btn" (click)="closeRequestModal()" [disabled]="isLoading">
+                    Cancel
+                </button>
+                <button type="submit" class="submit-btn" [disabled]="isLoading || !requestForm.valid">
+                    <span *ngIf="isLoading" class="loading-spinner"></span>
+                    {{ isLoading ? 'Sending...' : 'Send Request' }}
+                </button>
+            </div>
+        </form>
     </div>
 </div>
