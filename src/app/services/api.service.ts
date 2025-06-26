@@ -8,31 +8,51 @@ import { ToyImage } from '../models/toys';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'https://localhost:7298/api/Toys';
-  private requestsApiUrl = 'https://localhost:7298/api/Requests'; // <-- new endpoint for requests
+  private baseUrl = 'https://localhost:7298/api'; // Changed from apiUrl to baseUrl for clarity
+
+  private toysUrl = `${this.baseUrl}/Toys`; // Path for toy-related operations
+  private requestsApiUrl = `${this.baseUrl}/Requests`; // Path for requests
 
   constructor(private http: HttpClient) {}
 
   getToys(): Observable<Toy[]> {
-    return this.http.get<Toy[]>(this.apiUrl);
+    return this.http.get<Toy[]>(this.toysUrl);
   }
+
   addRequest(requestData: any): Observable<any> {
     return this.http.post(this.requestsApiUrl, requestData);
   }
+
   login(credentials: any): Observable<any> {
-    return this.http.post('https://localhost:7298/api/auth/login', credentials);
-  }
-  createToy(toy: Toy): Observable<any> {
-    return this.http.post(`${this.apiUrl}`, toy);
-  }
-  updateToy(id: number, toy: Toy): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, toy);
+    return this.http.post(`${this.baseUrl}/auth/login`, credentials);
   }
 
-  deleteToy(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  createToy(toy: Toy): Observable<any> {
+    return this.http.post(`${this.toysUrl}`, toy);
   }
-  getToyImages(id: string): Observable<ToyImage[]> {
-    return this.http.get<ToyImage[]>(`${this.apiUrl}/${id}/images`);
+  
+  updateToy(id: string, toy: Toy) {
+    return this.http.put(`${this.toysUrl}/${id}`, toy);
   }
+
+  deleteToy(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.toysUrl}/${id}`);
+  }
+
+  updateToyImage(toyId: string, imageId: string, toyImage: ToyImage): Observable<ToyImage> {
+    return this.http.put<ToyImage>(`${this.toysUrl}/${toyId}/images/${imageId}`, toyImage);
+  }
+
+  getToyImages(toyId: string): Observable<ToyImage[]> {
+    return this.http.get<ToyImage[]>(`${this.toysUrl}/${toyId}/images`);
+  }
+
+  postToyImage(toyId: string, toyImage: ToyImage): Observable<ToyImage> {
+    return this.http.post<ToyImage>(`${this.toysUrl}/${toyId}/images`, toyImage);
+  }
+
+  deleteToyImage(toyId: string, imageId: string): Observable<void> {
+    return this.http.delete<void>(`${this.toysUrl}/${toyId}/images/${imageId}`);
+  }
+
 }
