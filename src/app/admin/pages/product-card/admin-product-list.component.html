@@ -26,6 +26,20 @@
         <input [(ngModel)]="newProduct.stock" placeholder="Stock Quantity" type="number" min="0" />
     </div>
 
+    <!-- IMAGE URL SECTION -->
+    <div class="form-group">
+        <label>Images:</label>
+        <div *ngFor="let image of newProduct.images || []; let i = index; trackBy: trackByIndex" class="image-input-row"
+            style="margin-bottom: 8px;">
+            <input [(ngModel)]="newProduct.images[i].imageUrl" placeholder="Image URL" type="text"
+                style="width: 60%;" />
+            <input [(ngModel)]="newProduct.images[i].displayOrder" type="number" placeholder="Order" min="0"
+                style="width: 60px; margin-left: 10px;" />
+            <button type="button" (click)="removeAddImage(i)" style="margin-left: 10px;">Remove</button>
+        </div>
+        <button type="button" (click)="addNewImage()" style="margin-top: 5px;">Add Image</button>
+    </div>
+
     <div class="form-group">
         <textarea [(ngModel)]="newProduct.description" placeholder="Description" rows="3"></textarea>
     </div>
@@ -89,10 +103,6 @@
                     class="image-input-row" style="margin-bottom: 8px;">
                     <input [(ngModel)]="editingProduct!.images![i].imageUrl" placeholder="Image URL" type="text"
                         style="width: 60%;" />
-                    <label style="margin-left: 10px;">
-                        <input type="checkbox" [(ngModel)]="editingProduct!.images![i].isPrimary" />
-                        Primary
-                    </label>
                     <input [(ngModel)]="editingProduct!.images![i].displayOrder" type="number" placeholder="Order"
                         min="0" style="width: 60px; margin-left: 10px;" />
                     <button type="button" (click)="removeEditImage(i)" style="margin-left: 10px;">Remove</button>
