@@ -3,11 +3,22 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
 import { Toy, ToyImage } from '../../../models/toys';
+import { HttpErrorResponse } from '@angular/common/http';
 
-// Form model to use strings for price and stock for easy form binding
 type ToyFormModel = Omit<Toy, 'price' | 'stock'> & {
   price: string;
   stock: string;
+};
+
+// DTO for updating images
+interface ToyImageDto {
+  imageUrl: string;
+  displayOrder: number;
+}
+
+// Partial version for new product
+type PartialToyFormModel = Partial<ToyFormModel> & {
+  images: ToyImage[];
 };
 
 @Component({
@@ -20,8 +31,8 @@ type ToyFormModel = Omit<Toy, 'price' | 'stock'> & {
 export class AdminProductListComponent implements OnInit {
   toys: Toy[] = [];
   editingProduct: ToyFormModel | null = null;
-  // Initialize newProduct with default values instead of empty object
-  newProduct: Partial<ToyFormModel> = {
+
+  newProduct: PartialToyFormModel = {
     name: '',
     price: '0',
     description: '',
@@ -30,9 +41,15 @@ export class AdminProductListComponent implements OnInit {
     primaryImageUrl: '',
     images: []
   };
+
   showAddForm: boolean = false;
-  toyImages: { [toyId: string]: ToyImage[] } = {}; // Store images for each toy
-  isLoadingImages: { [toyId: string]: boolean } = {}; // Track loading state per toy
+  toyImages: { [toyId: string]: ToyImage[] } = {};
+  isLoadingImages: { [toyId: string]: boolean } = {};
+  
+  // Track original images for comparison
+  originalImages: { [toyId: string]: ToyImage[] } = {};
+
+  private readonly PLACEHOLDER_IMAGE_PATH = 'assets/placeholder-image.png';
 
   constructor(private apiService: ApiService) {}
 
@@ -44,9 +61,12 @@ export class AdminProductListComponent implements OnInit {
     this.apiService.getToys().subscribe({
       next: (data) => {
         this.toys = data;
-        // Load images for each toy
         this.toys.forEach(toy => {
-          this.loadToyImages(toy.id);
+          if (toy.id) {
+            this.loadToyImages(toy.id);
+          } else {
+            console.warn('Skipping image load for toy with undefined or null ID:', toy);
+          }
         });
       },
       error: (error) => {
@@ -56,18 +76,38 @@ export class AdminProductListComponent implements OnInit {
     });
   }
 
-  // Load images from database for a specific toy
   loadToyImages(toyId: string): void {
-    if (!toyId) return;
+    if (!toyId) {
+      console.warn('loadToyImages called with an empty or null toyId. Skipping image load.');
+      return;
+    }
 
     this.isLoadingImages[toyId] = true;
     this.apiService.getToyImages(toyId).subscribe({
       next: (images) => {
         this.toyImages[toyId] = images || [];
+        // Store original images for comparison
+        this.originalImages[toyId] = JSON.parse(JSON.stringify(images || []));
       },
-      error: (error) => {
-        console.error(`Error loading images for toy ${toyId}:`, error);
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 404 && error.url?.includes('/images')) {
+          console.warn(`No images found for toy ${toyId} (expected during testing). URL: ${error.url}`);
+        } else if (error.status !== 0) {
+          console.error(`Error loading images for toy ${toyId}:`, error);
+          console.error(`HTTP Status: ${error.status}`);
+          console.error(`HTTP Status Text: ${error.statusText}`);
+          if (error.message) {
+            console.error(`Error Message: ${error.message}`);
+          }
+          if (error.error) {
+            console.error(`Backend Error Body:`, error.error);
+          }
+        } else {
+          console.error(`Network or CORS error loading images for toy ${toyId}:`, error);
+          console.error(`Error Message: ${error.message}`);
+        }
         this.toyImages[toyId] = [];
+        this.originalImages[toyId] = [];
       },
       complete: () => {
         this.isLoadingImages[toyId] = false;
@@ -75,16 +115,14 @@ export class AdminProductListComponent implements OnInit {
     });
   }
 
-  // Get images for a specific toy
   getToyImages(toyId: string): ToyImage[] {
     return this.toyImages[toyId] || [];
   }
 
-  // Get primary image for a toy
   getPrimaryImage(toyId: string): string {
     const images = this.getToyImages(toyId);
     const primaryImage = images.find(img => img.isPrimary);
-    return primaryImage?.imageUrl || images[0]?.imageUrl || 'assets/placeholder-image.png';
+    return primaryImage?.imageUrl || images[0]?.imageUrl || this.PLACEHOLDER_IMAGE_PATH;
   }
 
   showAddToyForm() {
@@ -109,30 +147,29 @@ export class AdminProductListComponent implements OnInit {
     };
   }
 
-  // Handle image loading errors by setting placeholder image
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement;
-    target.src = 'assets/placeholder-image.png';
+    target.src = this.PLACEHOLDER_IMAGE_PATH;
   }
 
   private formModelToToy(formModel: ToyFormModel): Toy | null {
     const priceNum = Number(formModel.price);
     const stockNum = Number(formModel.stock);
 
-    if (!formModel.name || isNaN(priceNum) || priceNum <= 0) {
+    if (!formModel.name?.trim() || isNaN(priceNum) || priceNum <= 0) {
       alert('Please fill in all required fields with valid values.');
       return null;
     }
 
     return {
-      id: formModel.id || '', // empty string for new toy; backend assigns GUID
-      name: formModel.name,
-      description: formModel.description || '',
+      id: formModel.id || '', // This will be set by the backend
+      name: formModel.name.trim(),
+      description: formModel.description?.trim() || '',
       price: Math.round(priceNum * 100) / 100,
-      colors: formModel.colors || '',
+      colors: formModel.colors?.trim() || '',
       stock: stockNum,
-      primaryImageUrl: formModel.primaryImageUrl || '',
-      images: formModel.images || []
+      primaryImageUrl: formModel.primaryImageUrl?.trim() || '',
+      images: [] // Don't include images here - they're handled separately
     };
   }
 
@@ -142,31 +179,69 @@ export class AdminProductListComponent implements OnInit {
 
     this.apiService.createToy(toyToAdd).subscribe({
       next: (newToy) => {
-        alert('Product added successfully!');
-        this.loadProducts();
-        this.hideAddToyForm();
-        // Load images for the new toy if it has an ID
-        if (newToy?.id) {
-          this.loadToyImages(newToy.id);
+        console.log('New toy created:', newToy);
+        
+        // Check if we have images to add
+        const imageUrls = this.newProduct.images
+          .filter(img => img.imageUrl && img.imageUrl.trim())
+          .map(img => img.imageUrl);
+        
+        if (imageUrls.length > 0) {
+          console.log('Adding images:', imageUrls);
+          // Add images after toy creation
+          this.apiService.addImagesToToy(newToy.id, imageUrls).subscribe({
+            next: () => {
+              console.log('Images added successfully');
+              alert('Product and images added successfully!');
+              this.loadProducts();
+              this.hideAddToyForm();
+              this.loadToyImages(newToy.id);
+            },
+            error: (error: HttpErrorResponse) => {
+              console.error('Failed to add images:', error);
+              alert('Product added but failed to add images: ' + (error.message || 'Unknown error'));
+              this.loadProducts();
+              this.hideAddToyForm();
+            }
+          });
+        } else {
+          alert('Product added successfully!');
+          this.loadProducts();
+          this.hideAddToyForm();
         }
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('Failed to add product:', error);
         alert('Failed to add product: ' + (error.message || 'Unknown error'));
+        if (error.error) {
+          console.error('Backend error details:', error.error);
+        }
       }
     });
   }
 
   editProduct(toy: Toy) {
+    // Wait for images to load before editing
+    if (!this.toyImages[toy.id] && !this.isLoadingImages[toy.id]) {
+      this.loadToyImages(toy.id);
+    }
+
     this.editingProduct = {
       ...toy,
       price: toy.price.toString(),
       stock: toy.stock.toString(),
-      images: [...(this.getToyImages(toy.id) || [])]
+      // Create deep copy of images to avoid reference issues
+      images: this.toyImages[toy.id] ? JSON.parse(JSON.stringify(this.toyImages[toy.id])) : []
     };
+
+    // Set primary image URL if not already set
+    if (!this.editingProduct.primaryImageUrl && this.editingProduct.images.length > 0) {
+      const primaryImage = this.editingProduct.images.find(img => img.isPrimary) || this.editingProduct.images[0];
+      this.editingProduct.primaryImageUrl = primaryImage?.imageUrl || '';
+    }
   }
 
-  saveProduct() {
+  async saveProduct() {
     if (!this.editingProduct) {
       console.error('No product being edited');
       return;
@@ -175,60 +250,120 @@ export class AdminProductListComponent implements OnInit {
     const toyToSave = this.formModelToToy(this.editingProduct);
     if (!toyToSave) return;
 
-    const toyId = typeof toyToSave.id === 'string' ? Number(toyToSave.id) : toyToSave.id;
+    const toyId = toyToSave.id;
+    if (!toyId || toyId.trim() === '') {
+      console.error('Invalid toy ID:', toyId);
+      alert('Invalid toy ID. Cannot update product.');
+      return;
+    }
 
-    this.apiService.updateToy(toyId, toyToSave).subscribe({
-      next: () => {
-        alert('Product updated successfully!');
-        this.loadProducts();
-        // Reload images for the updated toy
-        if (this.editingProduct?.id) {
-          this.loadToyImages(this.editingProduct.id);
-        }
-        this.editingProduct = null;
-      },
-      error: (error) => {
-        console.error('Failed to update product:', error);
-        alert('Failed to update product: ' + (error.message || 'Unknown error'));
+    try {
+      // First save the toy details (without images)
+      await this.apiService.updateToy(toyId, toyToSave).toPromise();
+      
+      // Handle images separately
+      await this.updateToyImages(toyId, this.editingProduct.images);
+      
+      alert('Product updated successfully!');
+      this.loadProducts();
+      this.loadToyImages(toyId);
+      this.editingProduct = null;
+    } catch (error) {
+      const httpError = error as HttpErrorResponse;
+      console.error('Failed to update product:', httpError);
+      alert('Failed to update product: ' + (httpError.message || 'Unknown error'));
+      if (httpError.error) {
+        console.error('Backend error details:', httpError.error);
       }
-    });
+    }
+  }
+
+  // Method to handle image updates using your API endpoints
+  private async updateToyImages(toyId: string, currentImages: ToyImage[]): Promise<void> {
+    const originalImages = this.originalImages[toyId] || [];
+    
+    // Get new image URLs (images without IDs)
+    const newImageUrls = currentImages
+      .filter(img => !img.id && img.imageUrl && img.imageUrl.trim())
+      .map(img => img.imageUrl);
+    
+    // Add new images if any
+    if (newImageUrls.length > 0) {
+      await this.addImagesToToy(toyId, newImageUrls);
+    }
+    
+    // Update existing images that have changed
+    for (const currentImg of currentImages) {
+      if (currentImg.id) {
+        const originalImg = originalImages.find(orig => orig.id === currentImg.id);
+        if (originalImg && 
+            (originalImg.imageUrl !== currentImg.imageUrl || 
+             originalImg.displayOrder !== currentImg.displayOrder)) {
+          await this.updateImage(currentImg.id, {
+            imageUrl: currentImg.imageUrl,
+            displayOrder: currentImg.displayOrder
+          });
+        }
+      }
+    }
+  }
+
+  // Helper method to add images to toy
+  private async addImagesToToy(toyId: string, imageUrls: string[]): Promise<void> {
+    try {
+      await this.apiService.addImagesToToy(toyId, imageUrls).toPromise();
+    } catch (error) {
+      console.error('Failed to add images:', error);
+      throw error;
+    }
+  }
+
+  // Helper method to update individual image
+  private async updateImage(imageId: string, dto: ToyImageDto): Promise<void> {
+    try {
+      await this.apiService.updateToyImage(imageId, dto).toPromise();
+    } catch (error) {
+      console.error('Failed to update image:', error);
+      throw error;
+    }
   }
 
   deleteProduct(id: string) {
-    if (confirm('Are you sure you want to delete this product?')) {
-      const toyId = typeof id === 'string' ? Number(id) : id;
+    if (!confirm('Are you sure you want to delete this product?')) return;
 
-      this.apiService.deleteToy(toyId).subscribe({
-        next: () => {
-          alert('Product deleted successfully!');
-          // Remove images from cache
-          delete this.toyImages[id];
-          delete this.isLoadingImages[id];
-          this.loadProducts();
-        },
-        error: (error) => {
-          console.error('Failed to delete product:', error);
-          alert('Failed to delete product.');
-        }
-      });
+    if (!id || id.trim() === '') {
+      console.error('Invalid toy ID:', id);
+      alert('Invalid toy ID. Cannot delete product.');
+      return;
     }
+
+    this.apiService.deleteToy(id).subscribe({
+      next: () => {
+        alert('Product deleted successfully!');
+        delete this.toyImages[id];
+        delete this.isLoadingImages[id];
+        delete this.originalImages[id];
+        this.loadProducts();
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Failed to delete product:', error);
+        alert('Failed to delete product.');
+        if (error.error) {
+          console.error('Backend error details:', error.error);
+        }
+      }
+    });
   }
 
   cancelEdit() {
     this.editingProduct = null;
   }
 
-  // Refresh images for a specific toy
   refreshToyImages(toyId: string): void {
     this.loadToyImages(toyId);
   }
 
-  // ====== MULTI IMAGE MANAGEMENT ======
-
   addNewImage() {
-    if (!this.newProduct.images) {
-      this.newProduct.images = [];
-    }
     this.newProduct.images.push({
       id: '',
       imageUrl: '',
@@ -237,31 +372,52 @@ export class AdminProductListComponent implements OnInit {
     });
   }
 
-  removeNewImage(index: number) {
-    if (this.newProduct.images) {
-      this.newProduct.images.splice(index, 1);
-    }
+  removeAddImage(index: number) {
+    this.newProduct.images.splice(index, 1);
+    this.newProduct.images.forEach((img, idx) => (img.displayOrder = idx));
   }
 
   addEditImage() {
-    if (!this.editingProduct?.images) {
-      if (this.editingProduct) {
-        this.editingProduct.images = [];
-      }
+    if (this.editingProduct) {
+      this.editingProduct.images.push({
+        id: '', // New images don't have IDs yet
+        imageUrl: '',
+        isPrimary: false,
+        displayOrder: this.editingProduct.images.length
+      });
     }
-    this.editingProduct?.images?.push({
-      id: '',
-      imageUrl: '',
-      isPrimary: false,
-      displayOrder: this.editingProduct.images.length
-    });
   }
 
   removeEditImage(index: number) {
-    this.editingProduct?.images?.splice(index, 1);
+    if (this.editingProduct) {
+      this.editingProduct.images.splice(index, 1);
+      this.editingProduct.images.forEach((img, idx) => (img.displayOrder = idx));
+    }
+  }
+
+  // Update primary image when user selects a different primary
+  updatePrimaryImage(selectedIndex: number) {
+    if (this.editingProduct && this.editingProduct.images) {
+      // Clear all primary flags
+      this.editingProduct.images.forEach(img => img.isPrimary = false);
+      // Set the selected image as primary
+      this.editingProduct.images[selectedIndex].isPrimary = true;
+      // Update the primary image URL
+      this.editingProduct.primaryImageUrl = this.editingProduct.images[selectedIndex].imageUrl;
+    }
+  }
+
+  // Validate image URLs
+  validateImageUrl(url: string): boolean {
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    return urlPattern.test(url);
   }
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  trackByToyId(index: number, toy: Toy): string {
+    return toy.id;
   }
 }
