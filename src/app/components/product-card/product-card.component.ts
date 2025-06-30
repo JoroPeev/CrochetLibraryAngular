@@ -46,7 +46,7 @@ export class ProductCardComponent implements OnInit {
     this.apiService.getToyImages(this.product.id).subscribe({
       next: (images) => {
         this.toyImages = images || [];
-        this.currentImageIndex = 0; // Reset to first image
+        this.currentImageIndex = 0;
       },
       error: (error) => {
         console.error('Error loading toy images:', error);
@@ -61,7 +61,6 @@ export class ProductCardComponent implements OnInit {
   // Get current image with fallback
   get currentImage(): string {
     if (!this.hasImages) return this.defaultImage;
-        
     const image = this.toyImages[this.normalizedImageIndex];
     return image?.imageUrl || this.defaultImage;
   }
@@ -99,21 +98,25 @@ export class ProductCardComponent implements OnInit {
     this.showRequestModal = false;
   }
 
-
   submitRequest(): void {
     if (!this.validateRequest()) return;
 
     this.isLoading = true;
+
     const request = {
       toyId: this.product.id,
       toyName: this.product.name,
-      ...this.requestData
+      name: this.requestData.name,
+      email: this.requestData.email,
+      message: this.requestData.message,
+      dueDate: this.requestData.dueDate ? new Date(this.requestData.dueDate) : null
     };
 
     this.apiService.addRequest(request).subscribe({
       next: () => {
         alert('Request sent successfully!');
         this.closeRequestModal();
+        this.resetForm();
       },
       error: (error) => {
         console.error('Error sending request:', error);
@@ -134,6 +137,11 @@ export class ProductCardComponent implements OnInit {
       return false;
     }
 
+    if (!this.requestData.dueDate) {
+      alert('Please select a due date');
+      return false;
+    }
+
     return true;
   }
 
@@ -148,19 +156,17 @@ export class ProductCardComponent implements OnInit {
 
   openProductDetail(): void {
     if (!this.product) return;
-        
+
     this.router.navigate(['/products', this.product.id], {
       state: { product: this.product }
     });
   }
 
-  // Image error handling
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = this.defaultImage;
   }
 
-  // Refresh images (useful if images are updated elsewhere)
   refreshImages(): void {
     this.loadToyImages();
   }
