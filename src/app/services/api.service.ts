@@ -4,14 +4,18 @@ import { Observable } from 'rxjs';
 import { Toy } from '../models/toys';
 import { ToyImage } from '../models/toys';
 
+interface ToyImageDto {
+  imageUrl: string;
+  displayOrder: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = 'https://localhost:7298/api'; // Changed from apiUrl to baseUrl for clarity
-
-  private toysUrl = `${this.baseUrl}/Toys`; // Path for toy-related operations
-  private requestsApiUrl = `${this.baseUrl}/Requests`; // Path for requests
+  private baseUrl = 'https://localhost:7298/api';
+  private toysUrl = `${this.baseUrl}/Toys`;
+  private requestsApiUrl = `${this.baseUrl}/Requests`;
 
   constructor(private http: HttpClient) {}
 
@@ -31,7 +35,7 @@ export class ApiService {
     return this.http.post(`${this.toysUrl}`, toy);
   }
   
-  updateToy(id: string, toy: Toy) {
+  updateToy(id: string, toy: Toy): Observable<any> {
     return this.http.put(`${this.toysUrl}/${id}`, toy);
   }
 
@@ -39,20 +43,15 @@ export class ApiService {
     return this.http.delete<void>(`${this.toysUrl}/${id}`);
   }
 
-  updateToyImage(toyId: string, imageId: string, toyImage: ToyImage): Observable<ToyImage> {
-    return this.http.put<ToyImage>(`${this.toysUrl}/${toyId}/images/${imageId}`, toyImage);
-  }
-
   getToyImages(toyId: string): Observable<ToyImage[]> {
     return this.http.get<ToyImage[]>(`${this.toysUrl}/${toyId}/images`);
   }
 
-  postToyImage(toyId: string, toyImage: ToyImage): Observable<ToyImage> {
-    return this.http.post<ToyImage>(`${this.toysUrl}/${toyId}/images`, toyImage);
+  addImagesToToy(toyId: string, imageUrls: string[]): Observable<any> {
+    return this.http.post(`${this.toysUrl}/${toyId}/images`, imageUrls);
   }
 
-  deleteToyImage(toyId: string, imageId: string): Observable<void> {
-    return this.http.delete<void>(`${this.toysUrl}/${toyId}/images/${imageId}`);
+  updateToyImage(imageId: string, dto: ToyImageDto): Observable<any> {
+    return this.http.put(`${this.baseUrl}/Toys/images/${imageId}`, dto);
   }
-
 }
