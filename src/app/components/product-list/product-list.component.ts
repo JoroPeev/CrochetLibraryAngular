@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { Toy } from '../../models/toys';
@@ -12,6 +12,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
+  @Input() limit: number | null = null;
   products: Toy[] = [];
 
   constructor(private apiService: ApiService) {}
@@ -20,7 +21,8 @@ export class ProductListComponent implements OnInit {
     this.apiService.getToys().subscribe({
       next: (data) => {
         console.log('Fetched toys:', data);
-        this.products = data;
+        // if limit is set — slice the array
+        this.products = this.limit ? data.slice(0, this.limit) : data;
       },
       error: (err) => {
         console.error('Error fetching toys:', err);
