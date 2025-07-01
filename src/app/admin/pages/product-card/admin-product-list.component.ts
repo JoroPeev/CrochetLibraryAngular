@@ -152,7 +152,7 @@ export class AdminProductListComponent implements OnInit {
     target.src = this.PLACEHOLDER_IMAGE_PATH;
   }
 
-  private formModelToToy(formModel: ToyFormModel): Toy | null {
+  private formModelToToy(formModel: ToyFormModel, isNewToy: boolean = false): Toy | null {
     const priceNum = Number(formModel.price);
     const stockNum = Number(formModel.stock);
 
@@ -161,8 +161,8 @@ export class AdminProductListComponent implements OnInit {
       return null;
     }
 
-    return {
-      id: formModel.id || '', // This will be set by the backend
+    // Create the toy object without ID for new toys
+    const toy: any = {
       name: formModel.name.trim(),
       description: formModel.description?.trim() || '',
       price: Math.round(priceNum * 100) / 100,
@@ -171,11 +171,20 @@ export class AdminProductListComponent implements OnInit {
       primaryImageUrl: formModel.primaryImageUrl?.trim() || '',
       images: [] // Don't include images here - they're handled separately
     };
+
+    // Only include ID for existing toys (updates)
+    if (!isNewToy && formModel.id) {
+      toy.id = formModel.id;
+    }
+
+    return toy as Toy;
   }
 
   addToy() {
-    const toyToAdd = this.formModelToToy(this.newProduct as ToyFormModel);
+    const toyToAdd = this.formModelToToy(this.newProduct as ToyFormModel, true);
     if (!toyToAdd) return;
+
+    console.log('Creating toy with data:', toyToAdd);
 
     this.apiService.createToy(toyToAdd).subscribe({
       next: (newToy) => {
@@ -212,15 +221,34 @@ export class AdminProductListComponent implements OnInit {
       },
       error: (error: HttpErrorResponse) => {
         console.error('Failed to add product:', error);
-        alert('Failed to add product: ' + (error.message || 'Unknown error'));
-        if (error.error) {
-          console.error('Backend error details:', error.error);
+        console.error('Error status:', error.status);
+        console.error('Error body:', error.error);
+        
+        // Enhanced error handling
+        let errorMessage = 'Failed to add product';
+        if (error.error && typeof error.error === 'object') {
+          if (error.error.title) {
+            errorMessage += ': ' + error.error.title;
+          }
+          if (error.error.errors) {
+            const validationErrors = Object.values(error.error.errors).flat();
+            errorMessage += '\nValidation errors: ' + validationErrors.join(', ');
+          }
+        } else if (error.message) {
+          errorMessage += ': ' + error.message;
         }
+        
+        alert(errorMessage);
       }
     });
   }
 
   editProduct(toy: Toy) {
+    if (!toy.id) {
+      console.error('Cannot edit toy without ID');
+      return;
+    }
+
     // Wait for images to load before editing
     if (!this.toyImages[toy.id] && !this.isLoadingImages[toy.id]) {
       this.loadToyImages(toy.id);
@@ -247,7 +275,7 @@ export class AdminProductListComponent implements OnInit {
       return;
     }
 
-    const toyToSave = this.formModelToToy(this.editingProduct);
+    const toyToSave = this.formModelToToy(this.editingProduct, false);
     if (!toyToSave) return;
 
     const toyId = toyToSave.id;
@@ -418,6 +446,6 @@ export class AdminProductListComponent implements OnInit {
   }
 
   trackByToyId(index: number, toy: Toy): string {
-    return toy.id;
+    return toy.id || '';
   }
 }
