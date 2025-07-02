@@ -71,7 +71,8 @@
 
             <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <button (click)="editProduct(toy)" class="btn btn-outline-primary btn-sm">Edit</button>
-                <button (click)="deleteProduct(toy.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+                <button *ngIf="toy.id" (click)="deleteProduct(toy.id)"
+                    class="btn btn-outline-danger btn-sm">Delete</button>
             </div>
         </div>
 
