@@ -21,7 +21,6 @@ export class ProductListComponent implements OnInit {
     this.apiService.getToys().subscribe({
       next: (data) => {
         console.log('Fetched toys:', data);
-        // if limit is set — slice the array
         this.products = this.limit ? data.slice(0, this.limit) : data;
       },
       error: (err) => {
