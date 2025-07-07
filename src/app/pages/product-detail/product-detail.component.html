@@ -1,6 +1,11 @@
-<div class="product-detail" *ngIf="product.name">
-    <h1>{{ product.name }}</h1>
-    <img [src]="product.image" [alt]="product.name" class="product-image" />
-    <p>{{ product.description }}</p>
-    <h3>Price: {{ product.price }} лв.</h3>
+<div *ngIf="toy">
+    <h2>{{ toy.name }}</h2>
+    <img [src]="toy.primaryImageUrl" alt="{{ toy.name }}">
+    <p>{{ toy.description }}</p>
+    <p>Price: {{ toy.price | number:'1.2-2' }} лв.</p>
+    <p>Stock: {{ toy.stock }}</p>
+
+    <div *ngFor="let img of toy.images">
+        <img [src]="img.imageUrl" alt="">
+    </div>
 </div>
