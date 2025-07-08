@@ -10,13 +10,14 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'about', component: AboutComponent },
   { path: 'contact', component: ContactComponent },
-  { path: 'product-detail', component: ProductDetailComponent },
+  { path: 'products/:id', component: ProductDetailComponent }, // <-- add this
   {
     path: 'shop',
     loadComponent: () =>
       import('./pages/shop/shop.component').then(m => m.ShopComponent)
   }
 ];
+
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
