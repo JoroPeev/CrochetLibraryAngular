@@ -28,31 +28,10 @@ export class ProductListComponent implements OnInit {
       next: (data) => {
         console.log('Fetched toys:', data);
         this.products = this.limit ? data.slice(0, this.limit) : data;
-        this.applyFilters();
       },
       error: (err) => {
         console.error('Error fetching toys:', err);
       }
     });
-  }
-
-  // Example filtering and sorting method
-  applyFilters() {
-    let filtered = this.products;
-
-    if (this.searchTerm) {
-      filtered = filtered.filter(toy =>
-        toy.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    }
-
-
-    if (this.sortBy === 'priceAsc') {
-      filtered = filtered.sort((a, b) => a.price - b.price);
-    } else if (this.sortBy === 'priceDesc') {
-      filtered = filtered.sort((a, b) => b.price - a.price);
-    }
-
-    this.products = filtered;
   }
 }
