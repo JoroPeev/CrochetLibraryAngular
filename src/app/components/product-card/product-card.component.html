@@ -24,10 +24,11 @@
             {{ product.price | number:'1.2-2' }} лв
         </div>
 
-
-
         <!-- Action Buttons -->
         <div class="product-actions" (click)="$event.stopPropagation()">
+            <button class="details-button" (click)="openProductDetail($event)">
+                Details
+            </button>
             <button *ngIf="showRequestButton" class="request-button" (click)="openRequestModal()">
                 Request
             </button>
