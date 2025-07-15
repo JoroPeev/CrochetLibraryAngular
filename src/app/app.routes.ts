@@ -23,10 +23,6 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/admin.component').then(m => m.AdminComponent),
     children: [
       {
-        path: '',
-        loadComponent: () => import('./admin/pages/dashboard.component').then(m => m.DashboardComponent)
-      },
-      {
         path: 'admin/products',
         loadComponent: () => import('./admin/pages/product-card/admin-product-list.component')
           .then(m => m.AdminProductListComponent)
@@ -37,5 +33,5 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: '/' } // Wildcard route for unmatched paths
+  { path: '**', redirectTo: '/' } 
 ];
