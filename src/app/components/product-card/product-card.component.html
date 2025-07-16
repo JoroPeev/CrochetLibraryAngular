@@ -7,11 +7,11 @@
         <!-- Image Navigation -->
         <div class="image-nav" *ngIf="hasImages && imageCount > 1">
             <button class="nav-button prev" (click)="prevImage($event)" aria-label="Previous image">
-                &#8249;
+                ‹
             </button>
             <span class="image-counter">{{ normalizedImageIndex + 1 }}/{{ imageCount }}</span>
             <button class="nav-button next" (click)="nextImage($event)" aria-label="Next image">
-                &#8250;
+                ›
             </button>
         </div>
     </div>
@@ -44,40 +44,60 @@
             <button class="close-button" (click)="closeRequestModal()" aria-label="Close">×</button>
         </div>
 
-        <form class="request-form" (ngSubmit)="submitRequest()" #requestForm="ngForm">
-            <div class="form-group">
-                <label for="requestName">Name:</label>
-                <input type="text" id="requestName" name="name" [(ngModel)]="requestData.name" required
-                    placeholder="Enter your name" class="form-input">
-            </div>
+        <!-- Show form or thank you message based on submission status -->
+        <div *ngIf="!showThankYou; else thankYouMessage">
+            <form class="request-form" (ngSubmit)="submitRequest()" #requestForm="ngForm">
+                <div class="form-group">
+                    <label for="requestName">Name:</label>
+                    <input type="text" id="requestName" name="name" [(ngModel)]="requestData.name" required
+                        placeholder="Enter your name" class="form-input">
+                </div>
 
-            <div class="form-group">
-                <label for="requestEmail">Email:</label>
-                <input type="email" id="requestEmail" name="email" [(ngModel)]="requestData.email" required
-                    placeholder="Enter your email" class="form-input">
-            </div>
+                <div class="form-group">
+                    <label for="requestEmail">Email:</label>
+                    <input type="email" id="requestEmail" name="email" [(ngModel)]="requestData.email" required
+                        placeholder="Enter your email" class="form-input">
+                </div>
 
-            <div class="form-group">
-                <label for="requestMessage">Message:</label>
-                <textarea id="requestMessage" name="message" [(ngModel)]="requestData.message"
-                    placeholder="Tell us about your request..." rows="4" class="form-input form-textarea"></textarea>
-            </div>
+                <div class="form-group">
+                    <label for="requestMessage">Message:</label>
+                    <textarea id="requestMessage" name="message" [(ngModel)]="requestData.message"
+                        placeholder="Tell us about your request..." rows="4"
+                        class="form-input form-textarea"></textarea>
+                </div>
 
-            <div class="form-group">
-                <label for="requestDueDate">Due Date:</label>
-                <input type="date" id="requestDueDate" name="dueDate" [(ngModel)]="requestData.dueDate"
-                    class="form-input">
-            </div>
+                <div class="form-group">
+                    <label for="requestDueDate">Due Date:</label>
+                    <input type="date" id="requestDueDate" name="dueDate" [(ngModel)]="requestData.dueDate"
+                        class="form-input">
+                </div>
 
-            <div class="form-actions">
-                <button type="button" class="cancel-btn" (click)="closeRequestModal()" [disabled]="isLoading">
-                    Cancel
-                </button>
-                <button type="submit" class="submit-btn" [disabled]="isLoading || !requestForm.valid">
-                    <span *ngIf="isLoading" class="loading-spinner"></span>
-                    {{ isLoading ? 'Sending...' : 'Send Request' }}
-                </button>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="newsletter" name="newsletter" [(ngModel)]="requestData.newsletter"
+                            class="form-checkbox">
+                        Subscribe to our newsletter
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" (click)="closeRequestModal()" [disabled]="isLoading">
+                        Cancel
+                    </button>
+                    <button type="submit" class="submit-btn" [disabled]="isLoading || !requestForm.valid">
+                        <span *ngIf="isLoading" class="loading-spinner"></span>
+                        {{ isLoading ? 'Sending...' : 'Send Request' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Thank You Message -->
+        <ng-template #thankYouMessage>
+            <div class="thank-you-message">
+                <p>Thank you for your request!</p>
+                <button class="close-btn" (click)="closeRequestModal()">Close</button>
             </div>
-        </form>
+        </ng-template>
     </div>
 </div>

@@ -22,12 +22,14 @@ export class ProductCardComponent implements OnInit {
   isLoadingImages = false;
   defaultImage = '/assets/images/default-product.png';
   toyImages: ToyImage[] = [];
+  showThankYou = false; // New flag for thank you message
 
   requestData = {
     name: '',
     email: '',
     message: '',
-    dueDate: ''
+    dueDate: '',
+    newsletter: false
   };
 
   currentImageIndex = 0;
@@ -92,10 +94,13 @@ export class ProductCardComponent implements OnInit {
 
   openRequestModal() {
     this.showRequestModal = true;
+    this.showThankYou = false; // Reset thank you message when opening modal
   }
 
   closeRequestModal() {
     this.showRequestModal = false;
+    this.showThankYou = false; // Reset thank you message when closing
+    this.resetForm();
   }
 
   submitRequest(): void {
@@ -109,14 +114,14 @@ export class ProductCardComponent implements OnInit {
       name: this.requestData.name,
       email: this.requestData.email,
       message: this.requestData.message,
-      dueDate: this.requestData.dueDate ? new Date(this.requestData.dueDate) : null
+      dueDate: this.requestData.dueDate ? new Date(this.requestData.dueDate) : null,
+      SubscribeToNewsletter: this.requestData.newsletter // Map to backend field name
     };
 
     this.apiService.addRequest(request).subscribe({
       next: () => {
-        alert('Request sent successfully!');
-        this.closeRequestModal();
-        this.resetForm();
+        this.showThankYou = true; // Show thank you message
+        this.resetForm(); // Reset form data
       },
       error: (error) => {
         console.error('Error sending request:', error);
@@ -150,18 +155,25 @@ export class ProductCardComponent implements OnInit {
       name: '',
       email: '',
       message: '',
-      dueDate: ''
+      dueDate: '',
+      newsletter: false
     };
   }
 
-  openProductDetail(): void {
-    if (!this.product) return;
-
+  openProductDetail(event?: Event): void {
+    if (event) {
+        event.stopPropagation();
+    }
+    if (!this.product || !this.product.id) {
+        console.error('Product or Product ID is missing from card:', this.product);
+        return;
+    }
+    console.log('Navigating with Product ID (GUID):', this.product.id);
     this.router.navigate(['/products', this.product.id], {
-      state: { product: this.product }
+        state: { product: this.product }
     });
-  }
-
+}
+  
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = this.defaultImage;
