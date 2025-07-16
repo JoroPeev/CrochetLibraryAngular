@@ -1,8 +1,8 @@
+// api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Toy } from '../models/toys';
-import { ToyImage } from '../models/toys';
+import { Toy, ToyImage } from '../models/toys';
 
 interface ToyImageDto {
   imageUrl: string;
@@ -18,6 +18,10 @@ export class ApiService {
   private requestsApiUrl = `${this.baseUrl}/Requests`;
 
   constructor(private http: HttpClient) {}
+
+  getToyById(id: string): Observable<Toy> {
+    return this.http.get<Toy>(`${this.toysUrl}/${id}`);
+  }
 
   getToys(): Observable<Toy[]> {
     return this.http.get<Toy[]>(this.toysUrl);
