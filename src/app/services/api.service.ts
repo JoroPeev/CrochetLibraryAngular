@@ -54,8 +54,8 @@ export class ApiService {
     return this.http.post(`${this.toysUrl}/${toyId}/images`, imageUrls);
   }
 
-  updateToyImage(imageId: string, dto: ToyImageDto): Observable<any> {
-    return this.http.put(`${this.baseUrl}/Toys/images/${imageId}`, dto);
+  updateToyImage(toyId: string, imageId: string, dto: ToyImageDto): Observable<void> {
+  return this.http.put<void>(`/api/toys/${toyId}/images/${imageId}`, dto);
   }
 
   deleteToyImage(toyId: string, imageId: string): Observable<void> {
