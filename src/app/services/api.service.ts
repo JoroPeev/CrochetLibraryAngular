@@ -1,4 +1,3 @@
-// api.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -57,5 +56,9 @@ export class ApiService {
 
   updateToyImage(imageId: string, dto: ToyImageDto): Observable<any> {
     return this.http.put(`${this.baseUrl}/Toys/images/${imageId}`, dto);
+  }
+
+  deleteToyImage(toyId: string, imageId: string): Observable<void> {
+    return this.http.delete<void>(`${this.toysUrl}/${toyId}/images/${imageId}`);
   }
 }
