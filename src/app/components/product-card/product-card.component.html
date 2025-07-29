@@ -26,7 +26,7 @@
 
         <!-- Action Buttons -->
         <div class="product-actions" (click)="$event.stopPropagation()">
-            <button class="details-button" (click)="openProductDetail($event)">
+            <button (click)="openProductDetail($event)" *ngIf="showDetailsButton">
                 Details
             </button>
             <button *ngIf="showRequestButton" class="request-button" (click)="openRequestModal()">
