@@ -4,14 +4,24 @@ export interface ToyImage {
   isPrimary: boolean;
   displayOrder: number;
 }
-
+export interface Review {
+  id: number;
+  author: string;
+  rating: number;
+  comment: string;
+}
 export interface Toy {
-  id?: string; // Make ID optional for new toys
+  primaryImageUrl: string;
+}
+export interface Toy {
+  id?: string;
   name: string;
   description: string;
   price: number;
   colors: string;
   stock: number;
+  craftingTimeInDays: number;
+  reviews: Review[];
   images: ToyImage[];
   primaryImageUrl: string;
 }
