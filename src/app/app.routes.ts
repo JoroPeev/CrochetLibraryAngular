@@ -4,12 +4,13 @@ import { ContactComponent } from './pages/contact/contact.component';
 import { LoginComponent } from './pages/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { AuthGuard } from './services/auth.guard';
-
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 export const routes: Routes = [
   { path: '', component: HomeComponent, pathMatch: 'full' }, // homepage route
   { path: 'about', component: AboutComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'products/:id', component: ProductDetailComponent },
   {
     path: 'shop',
     loadComponent: () =>
