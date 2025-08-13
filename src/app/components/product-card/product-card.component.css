@@ -132,7 +132,7 @@
 }
 
 .request-button:hover {
-  background: #ff6565;
+  background: #ff6666;
 }
 
 /* Modal Styles (matching your login form) */
@@ -363,4 +363,16 @@
 
 .thank-you-message .close-btn:hover {
   background-color: #0056b3;
+}
+.action-button {
+    background-color: #ff7979;;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.action-button:hover {
+    background-color: #000000;
 }
