@@ -26,10 +26,10 @@
 
         <!-- Action Buttons -->
         <div class="product-actions" (click)="$event.stopPropagation()">
-            <button (click)="openProductDetail($event)" *ngIf="showDetailsButton">
+            <button (click)="openProductDetail($event)" *ngIf="showDetailsButton" class="action-button">
                 Details
             </button>
-            <button *ngIf="showRequestButton" class="request-button" (click)="openRequestModal()">
+            <button *ngIf="showRequestButton" class="action-button" (click)="openRequestModal()">
                 Request
             </button>
         </div>
