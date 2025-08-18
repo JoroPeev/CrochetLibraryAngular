@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Toy, ToyImage } from '../models/toys';
-
+import { Review } from '../models/toys';
 interface ToyImageDto {
   imageUrl: string;
   displayOrder: number;
@@ -60,5 +60,17 @@ export class ApiService {
 
   deleteToyImage(toyId: string, imageId: string): Observable<void> {
     return this.http.delete<void>(`${this.toysUrl}/${toyId}/images/${imageId}`);
+  }
+   // --- Reviews ---
+  getReviews(toyId: string): Observable<Review[]> {
+    return this.http.get<Review[]>(`${this.toysUrl}/${toyId}/reviews`);
+  }
+
+  addReview(toyId: string, review: Review): Observable<void> {
+    return this.http.post<void>(`${this.toysUrl}/${toyId}/reviews`, review);
+  }
+
+  deleteReview(toyId: string, reviewId: string): Observable<void> {
+    return this.http.delete<void>(`${this.toysUrl}/${toyId}/reviews/${reviewId}`);
   }
 }
