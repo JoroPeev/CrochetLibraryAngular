@@ -8,6 +8,7 @@ export interface Review {
   id: number;
   author: string;
   rating: number;
+  email: string;
   comment: string;
 }
 export interface Toy {
