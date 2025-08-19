@@ -26,6 +26,16 @@
         <input [(ngModel)]="newProduct.stock" placeholder="Stock Quantity" type="number" min="0" />
     </div>
 
+    <!-- NEW: Crafting Time -->
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.craftingTimeInDays" placeholder="Crafting Time (days)" type="number" min="0" />
+    </div>
+
+    <!-- NEW: Primary Image URL -->
+    <div class="form-group">
+        <input [(ngModel)]="newProduct.primaryImageUrl" placeholder="Primary Image URL" type="text" />
+    </div>
+
     <!-- IMAGE URL SECTION -->
     <div class="form-group">
         <label>Images:</label>
@@ -67,7 +77,19 @@
             <p><strong>Price:</strong> {{ toy.price | number:'1.2-2' }} лв.</p>
             <p *ngIf="toy.colors"><strong>Colors:</strong> {{ toy.colors }}</p>
             <p><strong>Stock:</strong> {{ toy.stock }}</p>
+            <p *ngIf="toy.craftingTimeInDays"><strong>Crafting Time:</strong> {{ toy.craftingTimeInDays }} days</p>
+            <p *ngIf="toy.primaryImageUrl"><strong>Primary Image:</strong> {{ toy.primaryImageUrl }}</p>
             <p *ngIf="toy.description"><strong>Description:</strong> {{ toy.description }}</p>
+
+            <!-- Reviews (read-only list) -->
+            <div *ngIf="toy.reviews?.length">
+                <p><strong>Reviews:</strong></p>
+                <ul>
+                    <li *ngFor="let review of toy.reviews">
+                        ⭐ {{ review.rating }} - {{ review.comment }}
+                    </li>
+                </ul>
+            </div>
 
             <div class="action-buttons" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <button (click)="editProduct(toy)" class="btn btn-outline-primary btn-sm">Edit</button>
@@ -97,6 +119,17 @@
                 <input [(ngModel)]="editingProduct!.stock" type="number" min="0" placeholder="Stock Quantity" />
             </div>
 
+            <!-- NEW: Crafting Time -->
+            <div class="form-group">
+                <input [(ngModel)]="editingProduct!.craftingTimeInDays" type="number" min="0"
+                    placeholder="Crafting Time (days)" />
+            </div>
+
+            <!-- NEW: Primary Image URL -->
+            <div class="form-group">
+                <input [(ngModel)]="editingProduct!.primaryImageUrl" placeholder="Primary Image URL" type="text" />
+            </div>
+
             <!-- IMAGE EDITING SECTION -->
             <div class="form-group">
                 <label>Edit Images:</label>
@@ -113,6 +146,16 @@
 
             <div class="form-group">
                 <textarea [(ngModel)]="editingProduct!.description" placeholder="Description" rows="3"></textarea>
+            </div>
+
+            <!-- Reviews (read-only in edit) -->
+            <div class="form-group" *ngIf="editingProduct?.reviews?.length">
+                <label>Reviews:</label>
+                <ul>
+                    <li *ngFor="let review of editingProduct!.reviews">
+                        ⭐ {{ review.rating }} - {{ review.comment }}
+                    </li>
+                </ul>
             </div>
 
             <div class="form-buttons" style="margin-top: 15px;">
