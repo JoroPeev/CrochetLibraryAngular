@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
-import { Toy, ToyImage } from '../../../models/toys';
+import { Toy, ToyImage, Review } from '../../../models/toys';
 import { HttpErrorResponse } from '@angular/common/http';
 
 type ToyFormModel = Omit<Toy, 'price' | 'stock'> & {
@@ -17,6 +17,7 @@ interface ToyImageDto {
 
 type PartialToyFormModel = Partial<ToyFormModel> & {
   images: ToyImage[];
+  reviews: Review[];
 };
 
 @Component({
@@ -36,8 +37,10 @@ export class AdminProductListComponent implements OnInit {
     description: '',
     colors: '',
     stock: '0',
+    craftingTimeInDays: 0,
     primaryImageUrl: '',
-    images: []
+    images: [],
+    reviews: []
   };
 
   showAddForm: boolean = false;
@@ -118,8 +121,10 @@ export class AdminProductListComponent implements OnInit {
       description: '',
       colors: '',
       stock: '0',
+      craftingTimeInDays: 0,
       primaryImageUrl: '',
-      images: []
+      images: [],
+      reviews: []
     };
   }
 
@@ -144,7 +149,9 @@ export class AdminProductListComponent implements OnInit {
       colors: formModel.colors?.trim() || '',
       stock: stockNum,
       primaryImageUrl: formModel.primaryImageUrl?.trim() || '',
-      images: []
+      craftingTimeInDays: formModel.craftingTimeInDays || 0,
+      images: [],
+      reviews: formModel.reviews || []
     };
 
     if (!isNewToy && formModel.id) {
@@ -215,7 +222,8 @@ export class AdminProductListComponent implements OnInit {
       ...toy,
       price: toy.price.toString(),
       stock: toy.stock.toString(),
-      images: this.toyImages[toy.id] ? JSON.parse(JSON.stringify(this.toyImages[toy.id])) : []
+      images: this.toyImages[toy.id] ? JSON.parse(JSON.stringify(this.toyImages[toy.id])) : [],
+      reviews: toy.reviews || []
     };
 
     if (!this.editingProduct.primaryImageUrl && this.editingProduct.images.length > 0) {
@@ -235,7 +243,6 @@ export class AdminProductListComponent implements OnInit {
     try {
       await this.apiService.updateToy(toyId, toyToSave).toPromise();
 
-      // Delete removed images
       for (const imageId of this.deletedImageIds) {
         try {
           await this.apiService.deleteToyImage(toyId, imageId).toPromise();
@@ -274,8 +281,8 @@ export class AdminProductListComponent implements OnInit {
         const originalImg = original.find(o => o.id === img.id);
         if (originalImg && (originalImg.imageUrl !== img.imageUrl || originalImg.displayOrder !== img.displayOrder)) {
           await this.updateImage(toyId, img.id, {
-          imageUrl: img.imageUrl,
-          displayOrder: img.displayOrder
+            imageUrl: img.imageUrl,
+            displayOrder: img.displayOrder
           });
         }
       }
@@ -292,14 +299,13 @@ export class AdminProductListComponent implements OnInit {
   }
 
   private async updateImage(toyId: string, imageId: string, dto: ToyImageDto): Promise<void> {
-  try {
-    await this.apiService.updateToyImage(toyId, imageId, dto).toPromise();
-  } catch (error) {
-    console.error('Failed to update image:', error);
-    throw error;
+    try {
+      await this.apiService.updateToyImage(toyId, imageId, dto).toPromise();
+    } catch (error) {
+      console.error('Failed to update image:', error);
+      throw error;
+    }
   }
-}
-
 
   deleteProduct(id: string) {
     if (!confirm('Are you sure you want to delete this product?')) return;
@@ -333,7 +339,7 @@ export class AdminProductListComponent implements OnInit {
       id: '',
       imageUrl: '',
       isPrimary: false,
-      displayOrder: this.newProduct.images.length+1
+      displayOrder: this.newProduct.images.length + 1
     });
   }
 
@@ -348,23 +354,22 @@ export class AdminProductListComponent implements OnInit {
         id: '',
         imageUrl: '',
         isPrimary: false,
-        displayOrder: this.editingProduct.images.length+1
+        displayOrder: this.editingProduct.images.length + 1
       });
     }
   }
 
   removeEditImage(index: number) {
-  if (this.editingProduct) {
-    const removed = this.editingProduct.images.splice(index, 1)[0];
-    if (removed?.id) {
-      this.deletedImageIds.push(removed.id);
+    if (this.editingProduct) {
+      const removed = this.editingProduct.images.splice(index, 1)[0];
+      if (removed?.id) {
+        this.deletedImageIds.push(removed.id);
+      }
+      this.editingProduct.images.forEach((img, i) => {
+        img.displayOrder = i + 1;
+      });
     }
-    this.editingProduct.images.forEach((img, i) => {
-      img.displayOrder = i+1;
-    });
   }
-}
-
 
   updatePrimaryImage(index: number) {
     if (this.editingProduct) {
