@@ -5,11 +5,12 @@ export interface ToyImage {
   displayOrder: number;
 }
 export interface Review {
-  id: number;
-  author: string;
-  rating: number;
-  email: string;
+  id?: string;
+  name: string;
+  emailAddress: string;
   comment: string;
+  reviewDate: string;
+  rating: number;
 }
 export interface Toy {
   primaryImageUrl: string;
