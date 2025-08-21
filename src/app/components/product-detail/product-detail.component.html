@@ -1,0 +1,79 @@
+<div class="product-detail" *ngIf="product; else loading">
+    <h1 class="product-title">{{ product.name }}</h1>
+
+    <div class="image-gallery" *ngIf="toyImages.length > 0; else noImages">
+        <img *ngFor="let img of toyImages" [src]="img?.imageUrl || defaultImage" [alt]="product.name"
+            (error)="onImageError($event)" class="gallery-image" />
+    </div>
+
+    <ng-template #noImages>
+        <img [src]="defaultImage" [alt]="product.name" class="gallery-image" />
+    </ng-template>
+
+    <div class="product-info">
+        <p class="product-description">{{ product.description }}</p>
+        <p><strong>Price:</strong> {{ product.price | number: '1.2-2' }} лв</p>
+        <p><strong>Colors:</strong> {{ product.colors }}</p>
+        <p><strong>Stock:</strong> {{ product.stock }}</p>
+        <p><strong>Crafting Time:</strong> {{ product.craftingTimeInDays }} days</p>
+    </div>
+
+    <!-- Reviews -->
+    <div *ngIf="product.reviews && product.reviews.length > 0; else noReviews" class="product-reviews">
+        <h3>Reviews</h3>
+        <div *ngFor="let review of product.reviews" class="review-item">
+            <p>
+                <strong>{{ review?.name }}</strong>
+                <span class="review-date">({{ review?.reviewDate | date:'mediumDate' }})</span>
+            </p>
+            <p class="review-rating">
+                <span *ngFor="let star of [1,2,3,4,5]">
+                    <span [class.filled]="star <= (review?.rating || 0)">★</span>
+                </span>
+            </p>
+            <p>{{ review?.comment }}</p>
+        </div>
+    </div>
+
+    <ng-template #noReviews>
+        <p>No reviews yet.</p>
+    </ng-template>
+
+    <!-- Add Review Form -->
+    <button (click)="toggleReviewForm()" class="add-review-btn">
+        {{ showReviewForm ? 'Cancel' : 'Add Review' }}
+    </button>
+
+    <div class="review-form" *ngIf="showReviewForm">
+        <h3>Add a Review</h3>
+        <form>
+            <label>
+                Name:
+                <input type="text" [(ngModel)]="newReview.name" name="name" required />
+            </label>
+            <label>
+                Email:
+                <input type="email" [(ngModel)]="newReview.emailAddress" name="emailAddress" required />
+            </label>
+
+            <label>Rating:</label>
+            <p class="review-rating">
+                <span *ngFor="let star of [1,2,3,4,5]" (click)="newReview.rating = star">
+                    <span [class.filled]="star <= (newReview.rating || 0)">★</span>
+                </span>
+            </p>
+
+            <label>
+                Comment:
+                <textarea [(ngModel)]="newReview.comment" name="comment" required></textarea>
+            </label>
+            <button type="button" (click)="submitReview()">Submit Review</button>
+        </form>
+    </div>
+
+    <button (click)="router.navigate(['/'])" class="back-btn">← Back to Products</button>
+</div>
+
+<ng-template #loading>
+    <p>Loading product details...</p>
+</ng-template>
