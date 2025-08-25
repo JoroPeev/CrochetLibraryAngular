@@ -1,15 +1,20 @@
 <div class="product-detail" *ngIf="product; else loading">
     <h1 class="product-title">{{ product.name }}</h1>
 
+    <!-- Image Gallery (Slideshow) -->
     <div class="image-gallery" *ngIf="toyImages.length > 0; else noImages">
-        <img *ngFor="let img of toyImages" [src]="img?.imageUrl || defaultImage" [alt]="product.name"
-            (error)="onImageError($event)" class="gallery-image" />
+        <button class="nav-btn prev" (click)="prevImage()">‹</button>
+
+        <img [src]="currentImage" [alt]="product.name" (error)="onImageError($event)" class="gallery-image" />
+
+        <button class="nav-btn next" (click)="nextImage()">›</button>
     </div>
 
     <ng-template #noImages>
         <img [src]="defaultImage" [alt]="product.name" class="gallery-image" />
     </ng-template>
 
+    <!-- Product Info -->
     <div class="product-info">
         <p class="product-description">{{ product.description }}</p>
         <p><strong>Price:</strong> {{ product.price | number: '1.2-2' }} лв</p>
@@ -51,15 +56,17 @@
                 Name:
                 <input type="text" [(ngModel)]="newReview.name" name="name" required />
             </label>
+
             <label>
                 Email:
                 <input type="email" [(ngModel)]="newReview.emailAddress" name="emailAddress" required />
             </label>
 
             <label>Rating:</label>
-            <p class="review-rating">
-                <span *ngFor="let star of [1,2,3,4,5]" (click)="newReview.rating = star">
-                    <span [class.filled]="star <= (newReview.rating || 0)">★</span>
+            <p class="review-rating stars">
+                <span *ngFor="let star of [1,2,3,4,5]" (click)="newReview.rating = star"
+                    [class.hovered]="star <= newReview.rating">
+                    ★
                 </span>
             </p>
 
@@ -67,6 +74,7 @@
                 Comment:
                 <textarea [(ngModel)]="newReview.comment" name="comment" required></textarea>
             </label>
+
             <button type="button" (click)="submitReview()">Submit Review</button>
         </form>
     </div>
