@@ -121,4 +121,25 @@ export class ProductDetailComponent implements OnInit {
       error: (err) => console.error('Error adding review:', err)
     });
   }
+  currentImageIndex = 0;
+
+get currentImage(): string {
+  return this.toyImages.length > 0
+    ? this.toyImages[this.currentImageIndex]?.imageUrl || this.defaultImage
+    : this.defaultImage;
+}
+
+nextImage(): void {
+  if (this.toyImages.length > 0) {
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.toyImages.length;
+  }
+}
+
+prevImage(): void {
+  if (this.toyImages.length > 0) {
+    this.currentImageIndex =
+      (this.currentImageIndex - 1 + this.toyImages.length) % this.toyImages.length;
+  }
+}
+
 }
