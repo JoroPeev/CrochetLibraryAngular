@@ -23,6 +23,11 @@
         <p><strong>Crafting Time:</strong> {{ product.craftingTimeInDays }} days</p>
     </div>
 
+    <!-- Request Button -->
+    <button *ngIf="showRequestButton" class="action-button" (click)="openRequestModal()">
+        Request
+    </button>
+
     <!-- Reviews -->
     <div *ngIf="product.reviews && product.reviews.length > 0; else noReviews" class="product-reviews">
         <h3>Reviews</h3>
