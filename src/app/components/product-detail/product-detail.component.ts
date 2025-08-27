@@ -20,6 +20,19 @@ export class ProductDetailComponent implements OnInit {
 
   showReviewForm = false;
 
+  // --- Request Modal ---
+  showRequestButton = true;
+  showRequestModal = false;
+  showThankYou = false;
+
+  requestData = {
+    name: '',
+    email: '',
+    message: '',
+    dueDate: '',
+    newsletter: false
+  };
+
   // expose Math/Number for template
   Math = Math;
   Number = Number;
@@ -29,7 +42,7 @@ export class ProductDetailComponent implements OnInit {
     emailAddress: '',
     comment: '',
     reviewDate: new Date().toISOString(),
-    rating: 0 // default no stars
+    rating: 0
   };
 
   constructor(
@@ -121,25 +134,95 @@ export class ProductDetailComponent implements OnInit {
       error: (err) => console.error('Error adding review:', err)
     });
   }
+
+  // --- Image slideshow ---
   currentImageIndex = 0;
 
-get currentImage(): string {
-  return this.toyImages.length > 0
-    ? this.toyImages[this.currentImageIndex]?.imageUrl || this.defaultImage
-    : this.defaultImage;
-}
-
-nextImage(): void {
-  if (this.toyImages.length > 0) {
-    this.currentImageIndex = (this.currentImageIndex + 1) % this.toyImages.length;
+  get currentImage(): string {
+    return this.toyImages.length > 0
+      ? this.toyImages[this.currentImageIndex]?.imageUrl || this.defaultImage
+      : this.defaultImage;
   }
-}
 
-prevImage(): void {
-  if (this.toyImages.length > 0) {
-    this.currentImageIndex =
-      (this.currentImageIndex - 1 + this.toyImages.length) % this.toyImages.length;
+  nextImage(): void {
+    if (this.toyImages.length > 0) {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.toyImages.length;
+    }
   }
-}
 
+  prevImage(): void {
+    if (this.toyImages.length > 0) {
+      this.currentImageIndex =
+        (this.currentImageIndex - 1 + this.toyImages.length) % this.toyImages.length;
+    }
+  }
+
+  // --- Request Modal logic (copied from ProductCardComponent) ---
+  openRequestModal() {
+    this.showRequestModal = true;
+    this.showThankYou = false;
+  }
+
+  closeRequestModal() {
+    this.showRequestModal = false;
+    this.showThankYou = false;
+    this.resetForm();
+  }
+
+  submitRequest(): void {
+    if (!this.validateRequest() || !this.product) return;
+
+    this.isLoading = true;
+
+    const request = {
+      toyId: this.product.id,
+      toyName: this.product.name,
+      name: this.requestData.name,
+      email: this.requestData.email,
+      message: this.requestData.message,
+      dueDate: this.requestData.dueDate ? new Date(this.requestData.dueDate) : null,
+      SubscribeToNewsletter: this.requestData.newsletter
+    };
+
+    this.apiService.addRequest(request).subscribe({
+      next: () => {
+        this.showThankYou = true;
+        this.resetForm();
+      },
+      error: (error) => {
+        console.error('Error sending request:', error);
+        alert(`Error: ${error.message || 'Failed to send request'}`);
+      },
+      complete: () => (this.isLoading = false)
+    });
+  }
+
+  private validateRequest(): boolean {
+    if (!this.requestData.name.trim()) {
+      alert('Please enter your name');
+      return false;
+    }
+
+    if (!this.requestData.email.includes('@')) {
+      alert('Please enter a valid email');
+      return false;
+    }
+
+    if (!this.requestData.dueDate) {
+      alert('Please select a due date');
+      return false;
+    }
+
+    return true;
+  }
+
+  resetForm(): void {
+    this.requestData = {
+      name: '',
+      email: '',
+      message: '',
+      dueDate: '',
+      newsletter: false
+    };
+  }
 }
