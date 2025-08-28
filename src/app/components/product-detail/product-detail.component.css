@@ -384,3 +384,141 @@
 .product-info { animation-delay: 0.3s; }
 .product-reviews { animation-delay: 0.4s; }
 .review-form { animation-delay: 0.5s; }
+/* ---------- Request Button ---------- */
+.action-button {
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #06beb6, #48b1bf);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(6, 190, 182, 0.4);
+  margin: 1.5rem auto;
+  display: block;
+}
+
+.action-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(6, 190, 182, 0.6);
+  background: linear-gradient(135deg, #48b1bf, #06beb6);
+}
+
+.action-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 4px 12px rgba(6, 190, 182, 0.4);
+}
+/* ---------- Modal Overlay ---------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(45, 55, 72, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ---------- Modal Content ---------- */
+.modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content label {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content input,
+.modal-content textarea {
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: #f7fafc;
+  font-size: 1rem;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  outline: none;
+}
+
+.newsletter-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 1.8rem;
+  background: none;
+  border: none;
+  color: #4a5568;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.modal-close:hover {
+  transform: scale(1.2);
+  color: #e53e3e;
+}
+
+/* ---------- Thank You Section ---------- */
+.thank-you {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.thank-you h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #48bb78;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
