@@ -27,6 +27,52 @@
     <button *ngIf="showRequestButton" class="action-button" (click)="openRequestModal()">
         Request
     </button>
+    <!-- Request Modal -->
+    <div class="modal-overlay" *ngIf="showRequestModal">
+        <div class="modal-content">
+            <button class="modal-close" (click)="closeRequestModal()">×</button>
+
+            <h2 class="modal-title">Send a Request</h2>
+
+            <form (ngSubmit)="submitRequest()" #requestForm="ngForm">
+                <label>
+                    Name:
+                    <input type="text" [(ngModel)]="requestData.name" name="name" required />
+                </label>
+
+                <label>
+                    Email:
+                    <input type="email" [(ngModel)]="requestData.email" name="email" required />
+                </label>
+
+                <label>
+                    Message:
+                    <textarea [(ngModel)]="requestData.message" name="message"></textarea>
+                </label>
+
+                <label>
+                    Due Date:
+                    <input type="date" [(ngModel)]="requestData.dueDate" name="dueDate" required />
+                </label>
+
+                <label class="newsletter-check">
+                    <input type="checkbox" [(ngModel)]="requestData.newsletter" name="newsletter" />
+                    Subscribe to newsletter
+                </label>
+
+                <button type="submit" class="action-button" [disabled]="isLoading">
+                    {{ isLoading ? 'Sending...' : 'Submit Request' }}
+                </button>
+            </form>
+
+            <!-- Thank you message -->
+            <div class="thank-you" *ngIf="showThankYou">
+                <h3>✅ Thank you!</h3>
+                <p>Your request has been sent successfully.</p>
+                <button class="back-btn" (click)="closeRequestModal()">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Reviews -->
     <div *ngIf="product.reviews && product.reviews.length > 0; else noReviews" class="product-reviews">
