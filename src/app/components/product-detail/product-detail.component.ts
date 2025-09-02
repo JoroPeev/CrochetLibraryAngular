@@ -16,11 +16,10 @@ export class ProductDetailComponent implements OnInit {
   product?: Toy;
   toyImages: ToyImage[] = [];
   isLoading = false;
+  errorMessage: string | null = null;
   defaultImage = '/assets/images/default-product.png';
 
   showReviewForm = false;
-
-  // --- Request Modal ---
   showRequestButton = true;
   showRequestModal = false;
   showThankYou = false;
@@ -33,10 +32,6 @@ export class ProductDetailComponent implements OnInit {
     newsletter: false
   };
 
-  // expose Math/Number for template
-  Math = Math;
-  Number = Number;
-
   newReview: Review = {
     name: '',
     emailAddress: '',
@@ -45,31 +40,39 @@ export class ProductDetailComponent implements OnInit {
     rating: 0
   };
 
+  // ⭐ Star rating helpers
+  hoverRating = 0;
+
+  setRating(star: number): void {
+    this.newReview.rating = star;
+  }
+
+  // Expose Math/Number for template
+  Math = Math;
+  Number = Number;
+
+  // Image slideshow
+  currentImageIndex = 0;
+
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    public router: Router
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    const navState = history.state?.product as Toy;
-    if (navState?.id) {
-      this.product = navState;
-      this.toyImages = navState.images || [];
-      this.loadReviews();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadProduct(id);
     } else {
-      const id = this.route.snapshot.paramMap.get('id');
-      if (id) {
-        this.loadProduct(id);
-      } else {
-        console.error('No product ID found in route');
-        this.router.navigate(['/']);
-      }
+      this.errorMessage = 'No product ID provided';
+      this.router.navigate(['/']);
     }
   }
 
   loadProduct(id: string): void {
     this.isLoading = true;
+    this.errorMessage = null;
     this.apiService.getToyById(id).subscribe({
       next: (toy) => {
         this.product = toy;
@@ -77,6 +80,7 @@ export class ProductDetailComponent implements OnInit {
         this.loadReviews();
       },
       error: (err) => {
+        this.errorMessage = 'Failed to load product. Please try again later.';
         console.error('Error fetching product:', err);
         this.router.navigate(['/']);
       },
@@ -88,9 +92,14 @@ export class ProductDetailComponent implements OnInit {
     if (!this.product?.id) return;
     this.apiService.getReviews(this.product.id.toString()).subscribe({
       next: (reviews) => {
-        if (this.product) this.product.reviews = reviews;
+        if (this.product) {
+          this.product.reviews = reviews;
+        }
       },
-      error: (err) => console.error('Error loading reviews:', err)
+      error: (err) => {
+        this.errorMessage = 'Failed to load reviews.';
+        console.error('Error loading reviews:', err);
+      }
     });
   }
 
@@ -104,17 +113,20 @@ export class ProductDetailComponent implements OnInit {
   }
 
   submitReview(): void {
-    if (!this.newReview.name || !this.newReview.comment || !this.newReview.emailAddress) {
-      alert('Please fill in all fields');
+    if (!this.validateReview()) {
+      this.errorMessage = 'Please fill in all required fields and provide a valid rating.';
       return;
     }
 
-    if (!this.product?.id) return;
+    if (!this.product?.id) {
+      this.errorMessage = 'No product selected.';
+      return;
+    }
 
     const reviewDto: Review = {
-      name: this.newReview.name,
-      emailAddress: this.newReview.emailAddress,
-      comment: this.newReview.comment,
+      name: this.newReview.name.trim(),
+      emailAddress: this.newReview.emailAddress.trim(),
+      comment: this.newReview.comment.trim(),
       reviewDate: new Date().toISOString(),
       rating: this.newReview.rating
     };
@@ -130,14 +142,26 @@ export class ProductDetailComponent implements OnInit {
           rating: 0
         };
         this.showReviewForm = false;
+        this.errorMessage = null;
       },
-      error: (err) => console.error('Error adding review:', err)
+      error: (err) => {
+        this.errorMessage = 'Failed to submit review. Please try again.';
+        console.error('Error adding review:', err);
+      }
     });
   }
 
-  // --- Image slideshow ---
-  currentImageIndex = 0;
+  private validateReview(): boolean {
+    const hasName = this.newReview.name.trim().length > 0;
+    const hasEmail = this.newReview.emailAddress.trim().length > 0;
+    const hasComment = this.newReview.comment.trim().length > 0;
+    const validRating = this.newReview.rating >= 1 && this.newReview.rating <= 5;
+    const validEmail = this.isValidEmail(this.newReview.emailAddress);
 
+    return hasName && hasEmail && hasComment && validRating && validEmail;
+  }
+
+  // Image slideshow
   get currentImage(): string {
     return this.toyImages.length > 0
       ? this.toyImages[this.currentImageIndex]?.imageUrl || this.defaultImage
@@ -157,30 +181,44 @@ export class ProductDetailComponent implements OnInit {
     }
   }
 
-  // --- Request Modal logic (copied from ProductCardComponent) ---
-  openRequestModal() {
+  // Request Modal logic
+  openRequestModal(): void {
     this.showRequestModal = true;
     this.showThankYou = false;
   }
 
-  closeRequestModal() {
+  closeRequestModal(): void {
     this.showRequestModal = false;
     this.showThankYou = false;
     this.resetForm();
   }
 
   submitRequest(): void {
-    if (!this.validateRequest() || !this.product) return;
+    if (!this.validateRequest() || !this.product) {
+      this.errorMessage = 'Please fill in all required fields with valid data.';
+      return;
+    }
 
     this.isLoading = true;
+    this.errorMessage = null;
+
+    const dueDate = this.requestData.dueDate
+      ? new Date(this.requestData.dueDate)
+      : null;
+
+    if (dueDate && isNaN(dueDate.getTime())) {
+      this.errorMessage = 'Invalid due date format.';
+      this.isLoading = false;
+      return;
+    }
 
     const request = {
       toyId: this.product.id,
       toyName: this.product.name,
-      name: this.requestData.name,
-      email: this.requestData.email,
-      message: this.requestData.message,
-      dueDate: this.requestData.dueDate ? new Date(this.requestData.dueDate) : null,
+      name: this.requestData.name.trim(),
+      email: this.requestData.email.trim(),
+      message: this.requestData.message.trim(),
+      dueDate,
       SubscribeToNewsletter: this.requestData.newsletter
     };
 
@@ -189,9 +227,9 @@ export class ProductDetailComponent implements OnInit {
         this.showThankYou = true;
         this.resetForm();
       },
-      error: (error) => {
-        console.error('Error sending request:', error);
-        alert(`Error: ${error.message || 'Failed to send request'}`);
+      error: (err) => {
+        this.errorMessage = `Error: ${err.message || 'Failed to send request'}`;
+        console.error('Error sending request:', err);
       },
       complete: () => (this.isLoading = false)
     });
@@ -199,21 +237,26 @@ export class ProductDetailComponent implements OnInit {
 
   private validateRequest(): boolean {
     if (!this.requestData.name.trim()) {
-      alert('Please enter your name');
+      this.errorMessage = 'Please enter your name.';
       return false;
     }
 
-    if (!this.requestData.email.includes('@')) {
-      alert('Please enter a valid email');
+    if (!this.isValidEmail(this.requestData.email)) {
+      this.errorMessage = 'Please enter a valid email address.';
       return false;
     }
 
     if (!this.requestData.dueDate) {
-      alert('Please select a due date');
+      this.errorMessage = 'Please select a due date.';
       return false;
     }
 
     return true;
+  }
+
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
   }
 
   resetForm(): void {
@@ -224,5 +267,6 @@ export class ProductDetailComponent implements OnInit {
       dueDate: '',
       newsletter: false
     };
+    this.errorMessage = null;
   }
 }
