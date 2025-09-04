@@ -44,7 +44,7 @@ export class ProductDetailComponent implements OnInit {
   hoverRating = 0;
 
   setRating(star: number): void {
-    this.newReview.rating = star;
+    this.newReview.rating = star; // save chosen star rating
   }
 
   // Expose Math/Number for template
@@ -88,20 +88,38 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  loadReviews(): void {
-    if (!this.product?.id) return;
-    this.apiService.getReviews(this.product.id.toString()).subscribe({
-      next: (reviews) => {
-        if (this.product) {
-          this.product.reviews = reviews;
-        }
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to load reviews.';
-        console.error('Error loading reviews:', err);
+loadReviews(): void {
+  if (!this.product?.id) return;
+  this.apiService.getReviews(this.product.id.toString()).subscribe({
+    next: (reviews) => {
+      if (this.product) {
+        this.product.reviews = reviews.map(r => {
+          let parsedRating = Number(r.rating);
+
+          // fallback: extract number from text if rating is inside comment like "4stars"
+          if (isNaN(parsedRating) && typeof r.comment === 'string') {
+            const match = r.comment.match(/(\d+)/); // get first number
+            if (match) {
+              parsedRating = Number(match[1]);
+            }
+          }
+
+          return {
+            ...r,
+            rating: parsedRating || 0
+          };
+        });
+
+        console.log('✅ Processed reviews:', this.product.reviews);
       }
-    });
-  }
+    },
+    error: (err) => {
+      this.errorMessage = 'Failed to load reviews.';
+      console.error('Error loading reviews:', err);
+    }
+  });
+}
+
 
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
@@ -128,12 +146,20 @@ export class ProductDetailComponent implements OnInit {
       emailAddress: this.newReview.emailAddress.trim(),
       comment: this.newReview.comment.trim(),
       reviewDate: new Date().toISOString(),
-      rating: this.newReview.rating
+      rating: Number(this.newReview.rating) // ✅ force number
     };
 
     this.apiService.addReview(this.product.id.toString(), reviewDto).subscribe({
       next: () => {
-        this.loadReviews();
+        // ✅ Immediately update UI (no reload needed)
+        if (this.product) {
+          if (!this.product.reviews) {
+            this.product.reviews = [];
+          }
+          this.product.reviews.unshift(reviewDto); // add to top of list
+        }
+
+        // ✅ Reset form
         this.newReview = {
           name: '',
           emailAddress: '',
@@ -141,6 +167,7 @@ export class ProductDetailComponent implements OnInit {
           reviewDate: new Date().toISOString(),
           rating: 0
         };
+        this.hoverRating = 0; // clear hover highlight
         this.showReviewForm = false;
         this.errorMessage = null;
       },
@@ -159,6 +186,15 @@ export class ProductDetailComponent implements OnInit {
     const validEmail = this.isValidEmail(this.newReview.emailAddress);
 
     return hasName && hasEmail && hasComment && validRating && validEmail;
+  }
+
+  // ⭐ Average rating
+  get averageRating(): number {
+    if (!this.product?.reviews || this.product.reviews.length === 0) {
+      return 0;
+    }
+    const sum = this.product.reviews.reduce((acc, r) => acc + Number(r.rating || 0), 0);
+    return sum / this.product.reviews.length;
   }
 
   // Image slideshow
