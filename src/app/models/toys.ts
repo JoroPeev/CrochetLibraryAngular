@@ -9,9 +9,11 @@ export interface Review {
   name: string;
   emailAddress: string;
   comment: string;
-  reviewDate: string;
-  rating: number;
+  customerRating: number;
+  reviewDate?: string;
+  toyId?: string;
 }
+
 export interface Toy {
   primaryImageUrl: string;
 }
