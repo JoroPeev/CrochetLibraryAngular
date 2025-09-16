@@ -1,138 +1,125 @@
-<div class="product-detail" *ngIf="product; else loading">
-    <h1 class="product-title">{{ product.name }}</h1>
+<div class="product-detail-container">
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading">Loading...</div>
 
-    <!-- Image Gallery (Slideshow) -->
-    <div class="image-gallery" *ngIf="toyImages.length > 0; else noImages">
-        <button class="nav-btn prev" (click)="prevImage()">‹</button>
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-        <img [src]="currentImage" [alt]="product.name" (error)="onImageError($event)" class="gallery-image" />
+    <!-- Product Details -->
+    <div *ngIf="product && !isLoading" class="product-detail">
+        <h2>{{ product.name }}</h2>
 
-        <button class="nav-btn next" (click)="nextImage()">›</button>
-    </div>
+        <!-- Image Slideshow -->
+        <div class="slideshow">
+            <button (click)="prevImage()" [disabled]="toyImages.length <= 1">Previous</button>
+            <img [src]="currentImage" (error)="onImageError($event)" alt="Product Image" />
+            <button (click)="nextImage()" [disabled]="toyImages.length <= 1">Next</button>
+        </div>
 
-    <ng-template #noImages>
-        <img [src]="defaultImage" [alt]="product.name" class="gallery-image" />
-    </ng-template>
+        <!-- Request Button -->
+        <button *ngIf="showRequestButton" (click)="openRequestModal()" class="request-button">
+            Request Product
+        </button>
 
-    <!-- Product Info -->
-    <div class="product-info">
-        <p class="product-description">{{ product.description }}</p>
-        <p><strong>Price:</strong> {{ product.price | number: '1.2-2' }} лв</p>
-        <p><strong>Colors:</strong> {{ product.colors }}</p>
-        <p><strong>Stock:</strong> {{ product.stock }}</p>
-        <p><strong>Crafting Time:</strong> {{ product.craftingTimeInDays }} days</p>
-    </div>
+        <!-- Reviews -->
+        <div class="reviews-section">
+            <h3>Reviews</h3>
 
-    <!-- Request Button -->
-    <button *ngIf="showRequestButton" class="action-button" (click)="openRequestModal()">
-        Request
-    </button>
-    <!-- Request Modal -->
-    <div class="modal-overlay" *ngIf="showRequestModal">
-        <div class="modal-content">
-            <button class="modal-close" (click)="closeRequestModal()">×</button>
+            <!-- ⭐ Average rating -->
+            <div *ngIf="product.reviews?.length" class="average-rating">
+                <strong>Average Rating:</strong>
+                <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= Math.round(averageRating)">★</span>
+                <span>({{ averageRating | number:'1.1-1' }}/5)</span>
+            </div>
 
-            <h2 class="modal-title">Send a Request</h2>
+            <!-- Individual reviews -->
+            <div *ngIf="product.reviews?.length; else noReviews">
+                <div *ngFor="let review of product.reviews" class="review">
+                    <p><strong>{{ review.name }}</strong> ({{ review.reviewDate | date: 'short' }})</p>
 
-            <form (ngSubmit)="submitRequest()" #requestForm="ngForm">
-                <label>
-                    Name:
-                    <input type="text" [(ngModel)]="requestData.name" name="name" required />
-                </label>
+                    <!-- Readonly stars for existing reviews -->
+                    <div class="star-rating readonly">
+                        <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= review.rating">★</span>
+                    </div>
 
-                <label>
-                    Email:
-                    <input type="email" [(ngModel)]="requestData.email" name="email" required />
-                </label>
+                    <p>{{ review.comment }}</p>
+                </div>
+            </div>
+            <ng-template #noReviews>
+                <p>No reviews yet.</p>
+            </ng-template>
 
-                <label>
-                    Message:
-                    <textarea [(ngModel)]="requestData.message" name="message"></textarea>
-                </label>
+            <button (click)="toggleReviewForm()">
+                {{ showReviewForm ? 'Cancel' : 'Write a Review' }}
+            </button>
 
-                <label>
-                    Due Date:
-                    <input type="date" [(ngModel)]="requestData.dueDate" name="dueDate" required />
-                </label>
+            <!-- Review Form -->
+            <div *ngIf="showReviewForm" class="review-form">
+                <h4>Write a Review</h4>
+                <form #reviewForm="ngForm" (ngSubmit)="submitReview()">
+                    <label>Name:</label>
+                    <input [(ngModel)]="newReview.name" name="reviewerName" required />
 
-                <label class="newsletter-check">
-                    <input type="checkbox" [(ngModel)]="requestData.newsletter" name="newsletter" />
-                    Subscribe to newsletter
-                </label>
+                    <label>Email:</label>
+                    <input [(ngModel)]="newReview.emailAddress" name="reviewerEmail" type="email" required />
 
-                <button type="submit" class="action-button" [disabled]="isLoading">
-                    {{ isLoading ? 'Sending...' : 'Submit Request' }}
-                </button>
-            </form>
+                    <label>Rating:</label>
+                    <div class="star-rating">
+                        <span *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)"
+                            (mouseover)="hoverRating = star" (mouseleave)="hoverRating = 0"
+                            [class.filled]="star <= (hoverRating || newReview.rating)">
+                            ★
+                        </span>
+                    </div>
+                    <div class="error-message" *ngIf="newReview.rating === 0 && errorMessage">
+                        Rating is required.
+                    </div>
 
-            <!-- Thank you message -->
-            <div class="thank-you" *ngIf="showThankYou">
-                <h3>✅ Thank you!</h3>
-                <p>Your request has been sent successfully.</p>
-                <button class="back-btn" (click)="closeRequestModal()">Close</button>
+                    <label>Comment:</label>
+                    <textarea [(ngModel)]="newReview.comment" name="reviewerComment" required></textarea>
+
+                    <button type="submit" [disabled]="isLoading">
+                        {{ isLoading ? 'Submitting...' : 'Submit Review' }}
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- Reviews -->
-    <div *ngIf="product.reviews && product.reviews.length > 0; else noReviews" class="product-reviews">
-        <h3>Reviews</h3>
-        <div *ngFor="let review of product.reviews" class="review-item">
-            <p>
-                <strong>{{ review?.name }}</strong>
-                <span class="review-date">({{ review?.reviewDate | date:'mediumDate' }})</span>
-            </p>
-            <p class="review-rating">
-                <span *ngFor="let star of [1,2,3,4,5]">
-                    <span [class.filled]="star <= (review?.rating || 0)">★</span>
-                </span>
-            </p>
-            <p>{{ review?.comment }}</p>
+    <!-- Request Modal -->
+    <div *ngIf="showRequestModal" class="modal">
+        <div class="modal-content">
+            <span class="close" (click)="closeRequestModal()">&times;</span>
+            <div *ngIf="showThankYou; else requestForm">
+                <h3>Thank You!</h3>
+                <p>Your request has been submitted.</p>
+                <button (click)="closeRequestModal()">Close</button>
+            </div>
+            <ng-template #requestForm>
+                <h3>Request Product: {{ product?.name }}</h3>
+                <form #requestForm="ngForm" (ngSubmit)="submitRequest()">
+                    <label>Name:</label>
+                    <input [(ngModel)]="requestData.name" name="requestName" required />
+
+                    <label>Email:</label>
+                    <input [(ngModel)]="requestData.email" name="requestEmail" type="email" required />
+
+                    <label>Message:</label>
+                    <textarea [(ngModel)]="requestData.message" name="requestMessage"></textarea>
+
+                    <label>Due Date:</label>
+                    <input [(ngModel)]="requestData.dueDate" name="requestDueDate" type="date" required />
+
+                    <label>
+                        <input [(ngModel)]="requestData.newsletter" name="newsletter" type="checkbox" />
+                        Subscribe to Newsletter
+                    </label>
+
+                    <button type="submit" [disabled]="isLoading">
+                        {{ isLoading ? 'Submitting...' : 'Submit Request' }}
+                    </button>
+                </form>
+            </ng-template>
         </div>
     </div>
-
-    <ng-template #noReviews>
-        <p>No reviews yet.</p>
-    </ng-template>
-
-    <!-- Add Review Form -->
-    <button (click)="toggleReviewForm()" class="add-review-btn">
-        {{ showReviewForm ? 'Cancel' : 'Add Review' }}
-    </button>
-
-    <div class="review-form" *ngIf="showReviewForm">
-        <h3>Add a Review</h3>
-        <form>
-            <label>
-                Name:
-                <input type="text" [(ngModel)]="newReview.name" name="name" required />
-            </label>
-
-            <label>
-                Email:
-                <input type="email" [(ngModel)]="newReview.emailAddress" name="emailAddress" required />
-            </label>
-
-            <label>Rating:</label>
-            <p class="review-rating stars">
-                <span *ngFor="let star of [1,2,3,4,5]" (click)="newReview.rating = star"
-                    [class.hovered]="star <= newReview.rating">
-                    ★
-                </span>
-            </p>
-
-            <label>
-                Comment:
-                <textarea [(ngModel)]="newReview.comment" name="comment" required></textarea>
-            </label>
-
-            <button type="button" (click)="submitReview()">Submit Review</button>
-        </form>
-    </div>
-
-    <button (click)="router.navigate(['/'])" class="back-btn">← Back to Products</button>
 </div>
-
-<ng-template #loading>
-    <p>Loading product details...</p>
-</ng-template>
