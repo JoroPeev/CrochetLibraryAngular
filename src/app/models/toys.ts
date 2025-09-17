@@ -9,7 +9,7 @@ export interface Review {
   name: string;
   emailAddress: string;
   comment: string;
-  rating: number;   // change from customerRating to rating
+  customerRating: number;   // change from customerRating to rating
   reviewDate?: string;
   toyId?: string;
 }
