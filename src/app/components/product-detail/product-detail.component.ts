@@ -36,22 +36,19 @@ export class ProductDetailComponent implements OnInit {
     name: '',
     emailAddress: '',
     comment: '',
-    reviewDate: new Date().toISOString(),
-    rating: 0
+    customerRating: 0,
+    toyId: ''
   };
 
-  // ⭐ Star rating helpers
   hoverRating = 0;
 
   setRating(star: number): void {
-    this.newReview.rating = star; // save chosen star rating
+    this.newReview.customerRating = star;
   }
 
-  // Expose Math/Number for template
-  Math = Math;
-  Number = Number;
+  Math = Math; // Expose Math for template
+  Number = Number; // Expose Number for template
 
-  // Image slideshow
   currentImageIndex = 0;
 
   constructor(
@@ -88,42 +85,24 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-loadReviews(): void {
-  if (!this.product?.id) return;
-  this.apiService.getReviews(this.product.id.toString()).subscribe({
-    next: (reviews) => {
-      if (this.product) {
-        this.product.reviews = reviews.map(r => {
-          let parsedRating = Number(r.rating);
-
-          // fallback: extract number from text if rating is inside comment like "4stars"
-          if (isNaN(parsedRating) && typeof r.comment === 'string') {
-            const match = r.comment.match(/(\d+)/); // get first number
-            if (match) {
-              parsedRating = Number(match[1]);
-            }
-          }
-
-          return {
-            ...r,
-            rating: parsedRating || 0
-          };
-        });
-
-        console.log('✅ Processed reviews:', this.product.reviews);
+  loadReviews(): void {
+    if (!this.product?.id) return;
+    this.apiService.getReviews(this.product.id.toString()).subscribe({
+      next: (reviews: Review[]) => {
+        if (this.product) {
+          this.product.reviews = reviews;
+          console.log('✅ Processed reviews:', this.product.reviews);
+        }
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load reviews.';
+        console.error('Error loading reviews:', err);
       }
-    },
-    error: (err) => {
-      this.errorMessage = 'Failed to load reviews.';
-      console.error('Error loading reviews:', err);
-    }
-  });
-}
-
+    });
+  }
 
   onImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = this.defaultImage;
+    (event.target as HTMLImageElement).src = this.defaultImage;
   }
 
   toggleReviewForm(): void {
@@ -131,73 +110,76 @@ loadReviews(): void {
   }
 
   submitReview(): void {
-    if (!this.validateReview()) {
-      this.errorMessage = 'Please fill in all required fields and provide a valid rating.';
+    if (!this.validateReview() || !this.product?.id) {
       return;
     }
 
-    if (!this.product?.id) {
-      this.errorMessage = 'No product selected.';
-      return;
-    }
+    this.isLoading = true;
+    this.errorMessage = null;
 
     const reviewDto: Review = {
       name: this.newReview.name.trim(),
       emailAddress: this.newReview.emailAddress.trim(),
       comment: this.newReview.comment.trim(),
-      reviewDate: new Date().toISOString(),
-      rating: Number(this.newReview.rating) // ✅ force number
+      customerRating: this.newReview.customerRating,
+      toyId: this.product.id
     };
 
     this.apiService.addReview(this.product.id.toString(), reviewDto).subscribe({
       next: () => {
-        // ✅ Immediately update UI (no reload needed)
         if (this.product) {
-          if (!this.product.reviews) {
-            this.product.reviews = [];
-          }
-          this.product.reviews.unshift(reviewDto); // add to top of list
+          this.product.reviews = this.product.reviews ?? [];
+          this.product.reviews.unshift(reviewDto); // Use reviewDto instead of savedReview
         }
-
-        // ✅ Reset form
         this.newReview = {
           name: '',
           emailAddress: '',
           comment: '',
-          reviewDate: new Date().toISOString(),
-          rating: 0
+          customerRating: 0,
+          toyId: this.product?.id ?? ''
         };
-        this.hoverRating = 0; // clear hover highlight
+        this.hoverRating = 0;
         this.showReviewForm = false;
-        this.errorMessage = null;
       },
       error: (err) => {
         this.errorMessage = 'Failed to submit review. Please try again.';
         console.error('Error adding review:', err);
+      },
+      complete: () => {
+        this.isLoading = false;
       }
     });
   }
 
   private validateReview(): boolean {
-    const hasName = this.newReview.name.trim().length > 0;
-    const hasEmail = this.newReview.emailAddress.trim().length > 0;
-    const hasComment = this.newReview.comment.trim().length > 0;
-    const validRating = this.newReview.rating >= 1 && this.newReview.rating <= 5;
-    const validEmail = this.isValidEmail(this.newReview.emailAddress);
-
-    return hasName && hasEmail && hasComment && validRating && validEmail;
+    if (!this.newReview.name.trim()) {
+      this.errorMessage = 'Please enter your name.';
+      return false;
+    }
+    if (!this.isValidEmail(this.newReview.emailAddress)) {
+      this.errorMessage = 'Please enter a valid email address.';
+      return false;
+    }
+    if (!this.newReview.comment.trim()) {
+      this.errorMessage = 'Please enter a comment.';
+      return false;
+    }
+    if (this.newReview.customerRating < 1 || this.newReview.customerRating > 5) {
+      this.errorMessage = 'Please select a rating (1–5 stars).';
+      return false;
+    }
+    this.errorMessage = null;
+    return true;
   }
 
-  // ⭐ Average rating
   get averageRating(): number {
     if (!this.product?.reviews || this.product.reviews.length === 0) {
       return 0;
     }
-    const sum = this.product.reviews.reduce((acc, r) => acc + Number(r.rating || 0), 0);
+    const sum = this.product.reviews.reduce((acc, r) => acc + r.customerRating, 0);
     return sum / this.product.reviews.length;
   }
 
-  // Image slideshow
   get currentImage(): string {
     return this.toyImages.length > 0
       ? this.toyImages[this.currentImageIndex]?.imageUrl || this.defaultImage
@@ -217,7 +199,6 @@ loadReviews(): void {
     }
   }
 
-  // Request Modal logic
   openRequestModal(): void {
     this.showRequestModal = true;
     this.showThankYou = false;
@@ -276,17 +257,15 @@ loadReviews(): void {
       this.errorMessage = 'Please enter your name.';
       return false;
     }
-
     if (!this.isValidEmail(this.requestData.email)) {
       this.errorMessage = 'Please enter a valid email address.';
       return false;
     }
-
     if (!this.requestData.dueDate) {
       this.errorMessage = 'Please select a due date.';
       return false;
     }
-
+    this.errorMessage = null;
     return true;
   }
 
