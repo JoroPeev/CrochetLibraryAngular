@@ -25,7 +25,7 @@
         <div class="reviews-section">
             <h3>Reviews</h3>
 
-            <!-- ⭐ Average rating -->
+            <!-- Average rating -->
             <div *ngIf="product.reviews?.length" class="average-rating">
                 <strong>Average Rating:</strong>
                 <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= Math.round(averageRating)">★</span>
@@ -39,7 +39,7 @@
 
                     <!-- Readonly stars for existing reviews -->
                     <div class="star-rating readonly">
-                        <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= review.rating">★</span>
+                        <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= review.customerRating">★</span>
                     </div>
 
                     <p>{{ review.comment }}</p>
@@ -67,12 +67,12 @@
                     <div class="star-rating">
                         <span *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)"
                             (mouseover)="hoverRating = star" (mouseleave)="hoverRating = 0"
-                            [class.filled]="star <= (hoverRating || newReview.rating)">
+                            [class.filled]="star <= (hoverRating || newReview.customerRating)">
                             ★
                         </span>
                     </div>
-                    <div class="error-message" *ngIf="newReview.rating === 0 && errorMessage">
-                        Rating is required.
+                    <div class="error-message" *ngIf="errorMessage && newReview.customerRating === 0">
+                        {{ errorMessage }}
                     </div>
 
                     <label>Comment:</label>
