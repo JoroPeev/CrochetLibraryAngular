@@ -43,7 +43,8 @@
 }
 
 .slideshow img {
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -54,23 +55,48 @@
    Buttons
 ========================= */
 button {
-  background: #4CAF50;
-  color: white;
   border: none;
   padding: 0.6rem 1.2rem;
   margin: 0.4rem 0;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.3s ease, transform 0.2s;
 }
 
 button:hover {
-  background: #45a049;
+  transform: translateY(-2px);
 }
 
 button:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #007BFF;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #0069d9;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+.btn-success {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #45a049;
 }
 
 .request-button {
@@ -91,15 +117,17 @@ button:disabled {
 }
 
 .review {
-  background: #f9f9f9;
+  background: #fff;
+  border-left: 4px solid #007BFF;
   padding: 1rem;
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .review strong {
-  color: #222;
+  font-size: 1.05rem;
+  color: #007BFF;
 }
 
 .review-form {
@@ -135,6 +163,7 @@ button:disabled {
 }
 
 .modal-content {
+  position: relative;
   background: #fff;
   padding: 2rem;
   border-radius: 12px;
@@ -169,15 +198,25 @@ button:disabled {
 }
 
 .close {
-  float: right;
-  font-size: 1.4rem;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #eee;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
-  color: #333;
+  transition: 0.2s;
 }
 
 .close:hover {
-  color: #ff0000;
+  background: #ff4444;
+  color: #fff;
 }
 
 /* Animation */
@@ -185,7 +224,10 @@ button:disabled {
   from { transform: scale(0.8); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
-/* Star Rating */
+
+/* =========================
+   Star Rating
+========================= */
 .star-rating {
   display: flex;
   gap: 5px;
@@ -199,7 +241,7 @@ button:disabled {
 }
 
 .star-rating span.filled {
-  color: gold; /* selected stars */
+  color: #FFD700; /* yellow for filled stars */
 }
 
 /* For readonly reviews (no pointer effect) */
@@ -210,11 +252,25 @@ button:disabled {
 .star-rating.readonly span {
   pointer-events: none;
 }
-.star-rating {
-  color: #ccc; /* default gray */
-  font-size: 20px;
-}
 
-.star-rating .filled {
-  color: #FFD700; /* yellow for filled stars */
+/* =========================
+   Responsive Design
+========================= */
+@media (max-width: 600px) {
+  .product-detail-container {
+    padding: 0.5rem;
+  }
+
+  .slideshow {
+    flex-direction: column;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  button {
+    width: 100%;
+  }
 }
