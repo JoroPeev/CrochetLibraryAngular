@@ -9,10 +9,26 @@
     <div *ngIf="product && !isLoading" class="product-detail card">
         <h2 class="product-title">{{ product.name }}</h2>
 
+        <!-- Product Info -->
+        <div class="product-info">
+            <p class="product-description">{{ product.description }}</p>
+
+            <p><strong>Price:</strong> {{ product.price | currency }}</p>
+
+            <p><strong>Available Colors:</strong> {{ product.colors }}</p>
+
+            <p>
+                <strong>In Stock:</strong>
+                <span [class.out-of-stock]="product.stock === 0">
+                    {{ product.stock > 0 ? product.stock + ' available' : 'Out of stock' }}
+                </span>
+            </p>
+        </div>
+
         <!-- Image Slideshow -->
         <div class="slideshow">
             <button class="nav-btn" (click)="prevImage()" [disabled]="toyImages.length <= 1">⟨</button>
-            <img [src]="currentImage" (error)="onImageError($event)" alt="Product Image" />
+            <img [src]="currentImage || product.primaryImageUrl" (error)="onImageError($event)" alt="Product Image" />
             <button class="nav-btn" (click)="nextImage()" [disabled]="toyImages.length <= 1">⟩</button>
         </div>
 
@@ -37,7 +53,9 @@
                 <div *ngFor="let review of product.reviews" class="review card">
                     <p class="review-header">
                         <strong>{{ review.name }}</strong>
-                        <span class="review-date">({{ review.reviewDate | date: 'short' }})</span>
+                        <span class="review-date" *ngIf="review.reviewDate">
+                            ({{ review.reviewDate | date: 'short' }})
+                        </span>
                     </p>
                     <div class="star-rating readonly">
                         <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= review.customerRating">★</span>
@@ -71,9 +89,6 @@
                             ★
                         </span>
                     </div>
-                    <div class="error-message" *ngIf="errorMessage && newReview.customerRating === 0">
-                        {{ errorMessage }}
-                    </div>
 
                     <label>Comment:</label>
                     <textarea [(ngModel)]="newReview.comment" name="reviewerComment" required></textarea>
@@ -97,7 +112,7 @@
             </div>
             <ng-template #requestForm>
                 <h3>Request Product: {{ product?.name }}</h3>
-                <form #requestForm="ngForm" (ngSubmit)="submitRequest()">
+                <form #requestFormEl="ngForm" (ngSubmit)="submitRequest()">
                     <label>Name:</label>
                     <input [(ngModel)]="requestData.name" name="requestName" required />
 
