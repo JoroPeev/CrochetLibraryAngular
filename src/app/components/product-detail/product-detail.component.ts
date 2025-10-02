@@ -46,8 +46,8 @@ export class ProductDetailComponent implements OnInit {
     this.newReview.customerRating = star;
   }
 
-  Math = Math; // Expose Math for template
-  Number = Number; // Expose Number for template
+  Math = Math; // expose for template
+  Number = Number; // expose for template
 
   currentImageIndex = 0;
 
@@ -117,26 +117,35 @@ export class ProductDetailComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    const reviewDto: Review = {
+    // Prepare review object with all required fields
+    const reviewDto = {
       name: this.newReview.name.trim(),
-      emailAddress: this.newReview.emailAddress.trim(),
+      email: this.newReview.emailAddress.trim(),
       comment: this.newReview.comment.trim(),
-      customerRating: this.newReview.customerRating,
-      toyId: this.product.id
+      rating: this.newReview.customerRating,
+      toyId: Number(this.product.id)
     };
 
     this.apiService.addReview(this.product.id.toString(), reviewDto).subscribe({
       next: () => {
         if (this.product) {
           this.product.reviews = this.product.reviews ?? [];
-          this.product.reviews.unshift(reviewDto); // Use reviewDto instead of savedReview
+          // Create a review object from the submitted data
+          const newReview: Review = {
+            name: reviewDto.name,
+            emailAddress: reviewDto.email,
+            comment: reviewDto.comment,
+            customerRating: reviewDto.rating,
+            toyId: this.product.id?.toString() ?? ''
+          };
+          this.product.reviews.unshift(newReview);
         }
         this.newReview = {
           name: '',
           emailAddress: '',
           comment: '',
           customerRating: 0,
-          toyId: this.product?.id ?? ''
+          toyId: this.product?.id?.toString() ?? ''
         };
         this.hoverRating = 0;
         this.showReviewForm = false;
@@ -236,7 +245,7 @@ export class ProductDetailComponent implements OnInit {
       email: this.requestData.email.trim(),
       message: this.requestData.message.trim(),
       dueDate,
-      SubscribeToNewsletter: this.requestData.newsletter
+      subscribeToNewsletter: this.requestData.newsletter
     };
 
     this.apiService.addRequest(request).subscribe({
