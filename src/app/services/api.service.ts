@@ -66,7 +66,7 @@ export class ApiService {
     return this.http.get<Review[]>(`${this.toysUrl}/${toyId}/reviews`);
   }
   addReview(toyId: string, review: any): Observable<void> {
-  return this.http.post<void>(`${this.toysUrl}/${toyId}/reviews`, review);
+    return this.http.post<void>(`${this.baseUrl}/Reviews`, review);
   }
   deleteReview(toyId: string, reviewId: string): Observable<void> {
     return this.http.delete<void>(`${this.toysUrl}/${toyId}/reviews/${reviewId}`);
