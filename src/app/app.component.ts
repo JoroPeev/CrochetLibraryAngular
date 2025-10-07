@@ -10,8 +10,6 @@ import { CategoryFilterComponent } from './components/category-filter/category-f
   imports: [
     RouterOutlet,
     NavbarComponent,
-    ProductListComponent,
-    CategoryFilterComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
