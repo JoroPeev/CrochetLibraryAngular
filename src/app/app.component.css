@@ -1,0 +1,101 @@
+/* Root container styles */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f4f6f8;
+  color: #333;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Navbar styling */
+app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 1em;
+}
+
+/* Content area where routed components show */
+router-outlet {
+  flex: 1;
+  display: block;
+}
+
+/* Main content wrapper for spacing */
+main,
+section {
+  padding: 2rem;
+  background-color: #fff;
+  margin: 1rem auto;
+  width: 95%;
+  max-width: 1200px;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Add smooth transitions for route changes (optional if using animations) */
+:host ::ng-deep router-outlet + * {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Scroll behavior for smoother navigation */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Global typography */
+h1, h2, h3, h4, h5 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+p {
+  line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  app-navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  main,
+  section {
+    padding: 1rem;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}
+
+/* Optional utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: #3498db;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
