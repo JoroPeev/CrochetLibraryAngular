@@ -1,0 +1,52 @@
+/* styles.css (global) */
+
+/* style the component host */
+app-product-list {
+  display: block;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  max-width: 1200px;
+  margin: 24px auto;
+}
+
+/* target assumed children inside the component (safe if those class names exist) */
+app-product-list .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+app-product-list .product {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+app-product-list .product:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+}
+
+app-product-list .product img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+/* product title / price */
+app-product-list .title { font-weight: 600; font-size: 1rem; }
+app-product-list .price { color: #0f766e; font-weight: 700; }
+
+/* small responsive tweak */
+@media (max-width: 480px) {
+  app-product-list { padding: 10px; margin: 12px; }
+  app-product-list .product img { height: 110px; }
+}
