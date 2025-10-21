@@ -41,14 +41,8 @@ export class ProductDetailComponent implements OnInit {
   };
 
   hoverRating = 0;
-
-  setRating(star: number): void {
-    this.newReview.customerRating = star;
-  }
-
-  Math = Math; // expose for template
-  Number = Number; // expose for template
-
+  Math = Math;
+  Number = Number;
   currentImageIndex = 0;
 
   constructor(
@@ -66,6 +60,10 @@ export class ProductDetailComponent implements OnInit {
       this.router.navigate(['/']);
     }
   }
+
+  // --------------------------
+  // PRODUCT & REVIEW HANDLING
+  // --------------------------
 
   loadProduct(id: string): void {
     this.isLoading = true;
@@ -89,10 +87,8 @@ export class ProductDetailComponent implements OnInit {
     if (!this.product?.id) return;
     this.apiService.getReviews(this.product.id.toString()).subscribe({
       next: (reviews: Review[]) => {
-        if (this.product) {
-          this.product.reviews = reviews;
-          console.log('✅ Processed reviews:', this.product.reviews);
-        }
+        this.product!.reviews = reviews;
+        console.log('✅ Loaded reviews:', this.product!.reviews);
       },
       error: (err) => {
         this.errorMessage = 'Failed to load reviews.';
@@ -101,58 +97,42 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  onImageError(event: Event): void {
-    (event.target as HTMLImageElement).src = this.defaultImage;
-  }
-
-  toggleReviewForm(): void {
-    this.showReviewForm = !this.showReviewForm;
-  }
-
   submitReview(): void {
-    if (!this.validateReview() || !this.product?.id) {
-      return;
-    }
+    if (!this.validateReview() || !this.product?.id) return;
 
     this.isLoading = true;
     this.errorMessage = null;
 
-    // Prepare review object with all required fields
     const reviewDto = {
       name: this.newReview.name.trim(),
-      email: this.newReview.emailAddress.trim(),
+      emailAddress: this.newReview.emailAddress.trim(),
       comment: this.newReview.comment.trim(),
-      rating: this.newReview.customerRating,
-      toyId: Number(this.product.id)
+      customerRating: this.newReview.customerRating,
+      toyId: this.product.id
     };
 
     this.apiService.addReview(this.product.id.toString(), reviewDto).subscribe({
       next: () => {
-        if (this.product) {
-          this.product.reviews = this.product.reviews ?? [];
-          // Create a review object from the submitted data
-          const newReview: Review = {
-            name: reviewDto.name,
-            emailAddress: reviewDto.email,
-            comment: reviewDto.comment,
-            customerRating: reviewDto.rating,
-            toyId: this.product.id?.toString() ?? ''
-          };
-          this.product.reviews.unshift(newReview);
-        }
+        console.log('✅ Review added successfully');
+        this.product!.reviews = this.product!.reviews ?? [];
+        this.product!.reviews.unshift({
+          ...reviewDto,
+          toyId: this.product!.id!.toString()
+        });
+
         this.newReview = {
           name: '',
           emailAddress: '',
           comment: '',
           customerRating: 0,
-          toyId: this.product?.id?.toString() ?? ''
+          toyId: this.product!.id!.toString()
         };
         this.hoverRating = 0;
         this.showReviewForm = false;
       },
       error: (err) => {
+        console.error('❌ Error adding review:', err);
         this.errorMessage = 'Failed to submit review. Please try again.';
-        console.error('Error adding review:', err);
       },
       complete: () => {
         this.isLoading = false;
@@ -181,6 +161,14 @@ export class ProductDetailComponent implements OnInit {
     return true;
   }
 
+  setRating(star: number): void {
+    this.newReview.customerRating = star;
+  }
+
+  toggleReviewForm(): void {
+    this.showReviewForm = !this.showReviewForm;
+  }
+
   get averageRating(): number {
     if (!this.product?.reviews || this.product.reviews.length === 0) {
       return 0;
@@ -188,6 +176,10 @@ export class ProductDetailComponent implements OnInit {
     const sum = this.product.reviews.reduce((acc, r) => acc + r.customerRating, 0);
     return sum / this.product.reviews.length;
   }
+
+  // --------------------------
+  // IMAGE HANDLING
+  // --------------------------
 
   get currentImage(): string {
     return this.toyImages.length > 0
@@ -207,6 +199,14 @@ export class ProductDetailComponent implements OnInit {
         (this.currentImageIndex - 1 + this.toyImages.length) % this.toyImages.length;
     }
   }
+
+  onImageError(event: Event): void {
+    (event.target as HTMLImageElement).src = this.defaultImage;
+  }
+
+  // --------------------------
+  // REQUEST MODAL HANDLING
+  // --------------------------
 
   openRequestModal(): void {
     this.showRequestModal = true;
